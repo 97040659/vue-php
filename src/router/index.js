@@ -25,7 +25,7 @@ const routes = [
         component: () => import('@/views/buyer/index'),
       },
       {
-        path: 'test',
+        path: '/test',
         name: 'Test',
         component: () => import('@/views/buyer/test'),
       },
@@ -34,8 +34,14 @@ const routes = [
   {
     path: '/business',
     name: 'Business',
+    redirect: '',
     component: () => import('@/views/business/index'),
     children: [
+      {
+        path: '',
+        name: 'Home',
+        component: () => import('@/views/business/Home'),
+      },
       {
         path: '/update',
         name: 'Update',

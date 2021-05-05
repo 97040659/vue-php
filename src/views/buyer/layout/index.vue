@@ -6,32 +6,32 @@
           <ul>
             <li class="font">
               <div>
-                <router-link to="/">
+                <router-link to="/buyer">
                   <span class="el-icon-s-home"></span>
                 </router-link>
               </div>
             </li>
           </ul>
           <ul>
-            <li v-if="!this.$store.getters.getUser">
+            <li v-if="!getBuyer">
               <div style="margin-top:5px;font-size:16px">
-                <router-link to="/login">登录</router-link>
+                <router-link to="/login">你好，请登录</router-link>
               </div>
             </li>
             <li v-else class="header-user-con">
               <!-- 用户头像 -->
               <div class="user-avator">
-                <img :src="this.$store.getters.getUser.avatar" />
+                <img :src="getBuyer.HeadImg" />
               </div>
               <!-- 用户名下拉菜单 -->
               <div class="user-name">
                 <el-dropdown>
                   <span class="el-dropdown-link">
-                    {{this.$store.getters.getUser.nickname}}
+                    {{getBuyer.Name}}
                     <i class="el-icon-caret-bottom"></i>
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <router-link to="/">
+                    <router-link to="/center">
                       <el-dropdown-item>个人中心</el-dropdown-item>
                     </router-link>
                     <a @click="logout">
@@ -52,9 +52,9 @@
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item
                         v-for="item in categoryList"
-                        :key="item.category_id"
-                    ><router-link :to="{ path: '/goods', query: {categoryID:item.category_id} }">
-                      {{item.category_name}}
+                        :key="item.CategoryId"
+                    ><router-link :to="{ path: '/goods', query: {categoryID:item.CategoryId} }">
+                      {{item.Name}}
                     </router-link>
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -62,10 +62,10 @@
               </div>
             </li>
             <li class="font">
-              <router-link to="/">我的收藏</router-link>
+              <router-link to="/favorite">我的收藏</router-link>
             </li>
             <li class="font">
-              <router-link to="/">我的订单</router-link>
+              <router-link to="/order">我的订单</router-link>
             </li>
 
             <li :class="getNum > 0 ? 'shopCart-full' : 'shopCart'">
@@ -92,9 +92,9 @@
                 background-color="#ffffff"
                 router
               >
-                <el-menu-item index="/">首页</el-menu-item>
+                <el-menu-item index="/buyer">首页</el-menu-item>
                 <el-menu-item index="/goods">全部商品</el-menu-item>
-                <el-menu-item index="/about">我的</el-menu-item>
+                <el-menu-item index="/center">意见反馈</el-menu-item>
                 <div class="so">
                   <el-input placeholder="请输入搜索内容" v-model="search">
                     <el-button slot="append" icon="el-icon-search" @click="searchClick"></el-button>
@@ -127,11 +127,11 @@
           </div>
           <div class="mod_help">
             <p>
-              <router-link to="/">首页</router-link>
+              <router-link to="/buyer">首页</router-link>
               <span>|</span>
               <router-link to="/goods">全部商品</router-link>
               <span>|</span>
-              <router-link to="/">我的</router-link>
+              <router-link to="/center">意见反馈</router-link>
             </p>
           </div>
         </div>
@@ -141,18 +141,61 @@
 </template>
 
 <script>
+  import {getInfo} from '@/api/user'
+  import {getCart} from '@/api/cart'
+  import { mapActions } from 'vuex'
+  import { mapGetters } from 'vuex'
   export default {
     name: "layout",
     data(){
       return{
-
+        categoryList: '', //分类列表
+        categoryID: [], // 分类id
+        activeIndex: '', // 头部导航栏选中的标签
+        search: '' // 搜索条件
       }
     },
+    beforeUpdate() {
+      this.activeIndex = this.$route.path
+    },
+    created() {
+      this.getInfo()
+    },
+    beforeDestroy() {
+
+    },
     computed: {
+      ...mapGetters(['getBuyer','getNum']),
       key() {
         return this.$route.path
       }
     },
+    methods:{
+      ...mapActions(['setBuyer','setShoppingCart']),
+      async getInfo(){
+        const userid={
+          userid:window.sessionStorage.getItem('userid')
+        }
+        const user=await getInfo(userid)
+        const cart=await getCart(userid)
+        this.setBuyer(user.data[0])
+        this.setShoppingCart(cart.data)
+      },
+      logout(){
+        window.sessionStorage.removeItem('userid')
+        window.sessionStorage.removeItem('AccessToken')
+        window.sessionStorage.removeItem('token')
+        this.$baseMessage('退出成功', 'success')
+        this.$router.push('/')
+      },
+      searchClick() {
+        if (this.search != '') {
+          // 跳转到全部商品页面,并传递搜索条件
+          this.$router.push({ path: '/goods', query: { search: this.search } })
+          this.search = ''
+        }
+      }
+    }
   }
 </script>
 

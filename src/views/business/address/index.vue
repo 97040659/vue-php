@@ -40,7 +40,7 @@
       <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage"
+          :current-page="param.page"
           :page-sizes="[10, 20, 50,100]"
           :page-size="param.limit"
           layout="total, sizes, prev, pager, next, jumper"
@@ -93,11 +93,10 @@
           UserId: '',
           Address: ''
         }],
-        currentPage: 1,
         param: {
           key: '', //关键字
           page: 1, //分页，即第几页的数据
-          limit: 10 //每页条数，即每页的数据数
+          limit: 10//每页条数，即每页的数据数
         },
         total: 0,
         addDialogVisible:false,

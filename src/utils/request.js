@@ -23,7 +23,7 @@ export function request(config) {
     setTimeout(()=>{
       Loading.tryHideFullScreenLoading()
       Message.error("请求超时!");
-      }, 10000);
+      }, 30000);
     // console.log(config.headers)
     return config
   }, err => {

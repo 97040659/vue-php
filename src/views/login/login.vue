@@ -29,7 +29,6 @@
 
 <script>
   import {Login} from '@/api/user'
-
   export default {
     name: "login",
     data() {
@@ -64,6 +63,7 @@
     methods: {
       async login(formName) {
         const data = await Login(this.form)
+        console.log(data)
         this.$refs[formName].validate(valid => {
           if (!valid) {
             return

@@ -56,7 +56,7 @@
       </el-main>
       <el-divider></el-divider>
       <el-footer>
-        电子商城管理系统
+        电子商城管理系统-{{getBusiness.Name}}
       </el-footer>
       </div>
     </el-container>
@@ -64,7 +64,9 @@
 </template>
 
 <script>
-  // import {getInfo} from '@/api/user'
+  import {getInfo} from '@/api/user'
+  import { mapActions } from 'vuex'
+  import { mapGetters } from 'vuex'
   export default {
     name: 'index',
     components:{},
@@ -77,6 +79,7 @@
       }
     },
     created() {
+      this.getInfo()
       this.routerView = false
       this.$nextTick(() => {
         this.routerView = true
@@ -84,17 +87,24 @@
       // this.test();
     },
     computed: {
+      ...mapGetters(['getBusiness']),
       key() {
         return this.$route.path
       },
     },
     methods:{
-      async test(){
-        // this.result=await getInfo();
-      },
+      ...mapActions(['setBusiness']),
       logout(){
         window.sessionStorage.clear()
         this.$router.push('/login')
+      },
+      async getInfo(){
+        const user={
+          userid:window.sessionStorage.getItem('userid')
+        }
+        const data=await getInfo(user)
+        this.setBusiness(data.data[0])
+        console.log(data)
       }
     }
   }

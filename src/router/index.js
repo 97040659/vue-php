@@ -25,9 +25,93 @@ const routes = [
         component: () => import('@/views/buyer/index'),
       },
       {
-        path: '/test',
-        name: 'Test',
-        component: () => import('@/views/buyer/test'),
+        path: '/goods',
+        name: 'Goods',
+        component: () => import('@/views/buyer/goods/Goods.vue')
+      },
+      {
+        path: '/goods/details',
+        name: 'Details',
+        component: () => import('@/views/buyer/goods/Details.vue')
+      },
+      {
+        path: '/feedback',
+        name: 'Feedback',
+        component: () => import('@/views/buyer/feedback/Feedback.vue')
+      },
+      {
+        path: '/cart',
+        name: 'Cart',
+        component: () => import('@/views/buyer/profile/cart/Cart.vue'),
+        meta: {
+          showMenu: false,
+          // requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/favorite',
+        name: 'Favorite',
+        component: () => import('@/views/buyer/profile/favorite/Favorite.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/order',
+        name: 'Order',
+        component: () => import('@/views/buyer/profile/order/Order.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/confirmOrder',
+        name: 'ConfirmOrder',
+        component: () => import('@/views/buyer/profile/order/ConfirmOrder.vue'),
+        meta: {
+          showMenu: false,
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/order/details',
+        name: 'OrderDetails',
+        component: () => import('@/views/buyer/profile/order/OrderDetails.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/center',
+        name: 'Center',
+        component: () => import('@/views/buyer/profile/personalCenter/Center.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/user/details',
+        name: 'UserDetails',
+        component: () => import('@/views/buyer/profile/personalCenter/UserDetails.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/user/pass',
+        name: 'UserPass',
+        component: () => import('@/views/buyer/profile/personalCenter/UserPass.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/user/address',
+        name: 'UserAddress',
+        component: () => import('@/views/buyer/profile/personalCenter/UserAddress.vue'),
+        meta: {
+          requireAuth: true // 需要验证登录状态
+        }
       },
     ],
   },

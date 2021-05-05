@@ -17,12 +17,6 @@
     <!--    </div>-->
     <!--  </div>-->
     <h2>ovo</h2>
-    <el-link
-        type="primary"
-        href="/test"
-        style="float:right;margin-bottom:10px;"
-    >测试
-    </el-link>
   </div>
 </template>
 <script>

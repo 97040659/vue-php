@@ -1,7 +1,8 @@
 <template>
   <div id="myList" class="myList">
     <ul>
-      <li v-for="(item,index) in list" :key="item.id">
+      <li v-for="(item,index) in list" :key="item.GoodsId"
+          @click="setClick({GoodsId:item.GoodsId,Click:item.Click})">
         <el-popover placement="top">
           <p>确定删除吗？</p>
           <div style="text-align: right; margin: 10px 0 0">
@@ -30,12 +31,20 @@
 
 <script>
   import {deleteFavorite} from "@/api/favorite";
+  import {mapActions} from "vuex";
+  import {updateClick} from "../api/goods";
 
   export default {
     name: "MyList",
     props: ['list', 'isMore', 'isDelete'],
     data() {
-      return {}
+      return {
+        id:'',
+        key:''
+      }
+    },
+    beforeRouteLeave(){
+
     },
     computed: {
       // 通过list获取当前显示的商品的分类ID，用于“浏览更多”链接的参数
@@ -53,6 +62,7 @@
       }
     },
     methods: {
+      ...mapActions(['setClick','getClickById']),
       async deleteFavorite(productId, index) {
         var form = {
           UserId: this.$store.getters.getBuyer.UserId,
@@ -65,7 +75,19 @@
             } else {
               this.$baseMessage(data.msg,'error')
             }
-      }
+      },
+    //   handleChange(key,id){
+    //     // this.handelUpdate(key,id)
+    //     console.log(key)
+    //   },
+    //   async handelUpdate(key,id){
+    //     const data= {
+    //       GoodsId:id,
+    //       Click:this.list[key].Click++
+    //     }
+    //     const res=await updateClick(data)
+    //     console.log(res)
+    //   },
     }
   }
 </script>

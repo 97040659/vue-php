@@ -13,3 +13,17 @@ export function getInfo(data) {
     data
   })
 }
+export function saveFeedback(data) {
+  return request({
+    url: '/api/feedback/saveFeedback',
+    method: 'post',
+    data
+  })
+}
+export function dealFeedback(data) {
+  return request({
+    url: '/api/feedback/dealFeedback',
+    method: 'post',
+    data
+  })
+}

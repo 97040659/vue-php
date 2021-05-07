@@ -1,18 +1,10 @@
 <template>
-  <div id="details" v-if="productDetails">
+  <div id="details" v-if="product">
     <!-- 头部 -->
     <div class="page-header">
       <div class="title">
-        <p>{{ productDetails.name }}</p>
+        <p>{{ product.GoodsName }}</p>
         <div class="list">
-          <div class="select">
-            <el-button type="text" class="list-select" @click="goInfo">概述</el-button>
-          </div>
-          <span class="cut">|</span>
-          <div class="select">
-            <el-button type="text" class="list-select" @click="goParam">参数</el-button>
-          </div>
-          <span class="cut">|</span>
           <div class="select">
             <el-button type="text" class="list-select">用户评价</el-button>
           </div>
@@ -23,62 +15,40 @@
 
     <!-- 主要内容 -->
     <div class="details-main">
-      <!-- 左侧商品轮播图 -->
+      <!-- 左侧商品图 -->
       <div class="details-block">
-        <el-carousel height="560px" v-if="productPictures.length > 1">
-          <el-carousel-item v-for="item in productPictures" :key="item.id">
-            <img style="height: 560px;" v-lazy="item.img_path" />
-          </el-carousel-item>
-        </el-carousel>
-        <div v-if="productPictures.length == 1">
-          <img style="height: 560px;" :src="productPictures[0].img_path" />
-        </div>
+            <img style="height: 560px;width: 560px;" v-lazy="this.product.GoodsImg" />
       </div>
-      <!-- 左侧商品轮播图END -->
+      <!-- 左侧商品图END -->
 
       <!-- 右侧内容区 -->
       <div class="details-content">
-        <h1 class="name">{{ productDetails.name }}</h1>
+        <h1 class="name">{{ product.GoodsName }}</h1>
         <li class="view">
           <i class="el-icon-view"></i>
-          {{ productDetails.view }}
+          {{ product.Click }}
         </li>
-        <p class="intro">{{ productDetails.info }}</p>
+        <p class="intro">{{ product.GoodsInfo }}</p>
         <div class="price">
-          <span>{{ productDetails.discount_price }}元</span>
-          <span
-              v-show="productDetails.price != productDetails.discount_price"
-              class="del"
-          >{{ productDetails.price }}元</span>
+          <span>{{ product.Price }}元</span>
+<!--          <span-->
+<!--              v-show="product.Price != product.DiscountPrice"-->
+<!--              class="del"-->
+<!--          >{{ product.Price }}元</span>-->
         </div>
         <div class="pro-list">
-          <p class="price-sum">总计 : {{ productDetails.discount_price }}元</p>
+          <p class="price-sum">总计 : {{ product.Price }}元</p>
         </div>
         <!-- 内容区底部按钮 -->
         <div class="button">
-          <el-button class="shop-cart" :disabled="dis" @click="addShoppingCart">加入购物车</el-button>
-          <el-button class="like" @click="addFavorite">喜欢</el-button>
+          <el-button class="shop-cart" icon="el-icon-shopping-cart-2" v-if="!isMax" @click="addCart">加入购物车</el-button>
+          <el-button class="like" icon="el-icon-shopping-cart-2" v-else disabled>商品已售罄</el-button>
+          <el-button class="like" icon="el-icon-star-off" @click="addFavorite">喜欢</el-button>
         </div>
       </div>
       <!-- 右侧内容区END -->
     </div>
     <!-- 主要内容END -->
-    <div class="product-select" id="product-select">
-      <el-button
-          type="text"
-          :class="select == 0 ? 'isSelect' : 'notSelect'"
-          @click="showInfoImgs"
-      >商品概述</el-button>
-      <span class="cut">|</span>
-      <el-button
-          type="text"
-          :class="select == 1 ? 'isSelect' : 'notSelect'"
-          @click="showParamImgs"
-      >商品参数</el-button>
-    </div>
-    <div class="product-img" v-for="item in imgs" :key="item.id">
-      <img v-lazy="item.img_path" />
-    </div>
   </div>
   <div class="not-found" v-else>查询不到该商品</div>
 </template>
@@ -87,51 +57,80 @@
   import {saveCart} from "@/api/cart";
   import {saveFavorite} from "@/api/favorite";
   import {getInfo} from "@/api/goods";
+  import {mapActions, mapGetters, mapMutations} from "vuex";
 
   export default {
     name: "Details",
     data() {
       return {
-        dis: false, // 控制“加入购物车按钮是否可用”
+        isShow: false, // 控制“加入购物车按钮是否可用”
         productID: 0, // 商品id
-        product: '', // 商品详细信息
+        product: [], // 商品详细信息
+        click: [],
         select: 0
       }
     },
+    // created() {
+    //   this.click=this.$store.getters.getClick
+    // },
     // 通过路由获取商品id
     activated() {
+      this.click=[]
       if (this.$route.query.productID != undefined) {
         this.productID = this.$route.query.productID
+        this.click=this.$store.getters.getClick
       }
     },
     watch: {
       // 监听商品id的变化，请求后端获取商品数据
       productID: function() {
-        this.load()
-        //this.getDetailsPicture(val);
+        this.fetchData()
+      },
+      click:function () {
+        if(this.click){
+          for (let i=0;i<this.click.length;i++){
+            let temp=this.click[i]
+            if(temp.GoodsId==this.productID){
+              this.product.Click=temp.Click
+              console.log(temp.Click)
+            }
+          }
+        }
+      }
+    },
+    computed:{
+      isMax:function () {
+        if(this.product.Num<1){
+          this.isShow=!this.isShow
+        }
+        return this.isShow
       }
     },
     methods: {
-      ...mapActions(['addShoppingCart','setClick']),
+      ...mapMutations(['getClickById']),
+      ...mapActions(['addShoppingCart']),
       // 获取商品详细信息
       async fetchData() {
         const goods={
           GoodsId: this.productID
         }
         const data=await getInfo(goods)
-        this.product=data.data
-        this.setClick({GoodsId:this.product.GoodsId,Click:this.product.Click++})
+        this.product=data.data[0]
       },
       // 加入购物车
-      async addShoppingCart() {
+      addCart() {
         var form = {
           UserId: this.$store.getters.getBuyer.UserId,
           GoodsId: Number(this.productID),
-          Num:this.product.Num,
-          Price:this.product.Price
+          GoodsName:this.product.GoodsName,
+          GoodsImg:this.product.GoodsImg,
+          MaxNum:this.product.Num,
+          Num:1,
+          Price:this.product.Price,
+          check:true
         }
-        const data=await saveCart(form)
         this.addShoppingCart(form)
+        this.$router.push('/cart')
       },
       async addFavorite() {
         var form = {
@@ -139,6 +138,7 @@
           GoodsId: Number(this.productID)
         }
         const data =await saveFavorite(form)
+        this.$router.push('/favorite')
       }
     },
   }
@@ -275,18 +275,19 @@
   }
   #details .details-main .details-content .button {
     height: 55px;
-    margin: 10px 0 20px 0;
+    margin: 100px 0 20px 0;
   }
   #details .details-main .details-content .button .el-button {
     float: left;
     height: 55px;
-    font-size: 16px;
+    font-size: 22px;
     color: #fff;
     border: none;
     text-align: center;
   }
   #details .details-main .details-content .button .shop-cart {
-    width: 340px;
+    width: 200px;
+    margin-left: 40px;
     background-color: #ff6700;
   }
   #details .details-main .details-content .button .shop-cart:hover {
@@ -294,7 +295,7 @@
   }
 
   #details .details-main .details-content .button .like {
-    width: 260px;
+    width: 200px;
     margin-left: 40px;
     background-color: #b0b0b0;
   }

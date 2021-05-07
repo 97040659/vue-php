@@ -5,7 +5,6 @@
 export default {
   state: {
     shoppingCart: [],
-    check:[]
   },
   getters: {
     getShoppingCart(state) {
@@ -17,7 +16,7 @@ export default {
       let totalNum = 0
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
-        totalNum += temp.num
+        totalNum += temp.Num
       }
       return totalNum
     },
@@ -52,7 +51,7 @@ export default {
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
         if (temp.check) {
-          totalNum += temp.num
+          totalNum += temp.Num
         }
       }
       return totalNum
@@ -63,7 +62,7 @@ export default {
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
         if (temp.check) {
-          totalPrice += temp.discount_price * temp.num
+          totalPrice += temp.Price * temp.Num
         }
       }
       return totalPrice
@@ -72,34 +71,47 @@ export default {
   mutations: {
     setShoppingCart(state, data) {
       // 设置购物车状态
+      data.map(item=>{
+        item['check']=false
+      })
       state.shoppingCart = data
-    },
-    setChecked(state,data){
-      state.check.push(data)
     },
     addShoppingCart(state, data) {
       // 添加购物车
       // 用于在商品详情页点击添加购物车,后台添加成功后，更新vuex状态
+      if (state.shoppingCart.length < 1) {
+        return state.shoppingCart.push(data)
+      }
+      let key = 0
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
-        if (data.GoodsId==temp.GoodsId) {
-          if(temp.Num<temp.MaxNum){
-            return state.shoppingCart[i].Num++
-          }else {
-            return '该商品数量已经达到上限'
+        if (temp.GoodsId == data.GoodsId) {
+          if (data.Num < data.MaxNum) {
+            state.shoppingCart[i].Num++
+          } else {
+            this.$baseMessage('该商品数量已经达到上限', 'warning')
           }
+        } else {
+          return state.shoppingCart.push(data)
         }
       }
-      state.shoppingCart.push(data)
     },
     updateShoppingCart(state, payload) {
       // 更新购物车
       // 可更新商品数量和是否勾选
       // 用于购物车点击勾选及加减商品数量
+      console.log(payload.key[0].GoodsId)
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
-        if (payload.Id==temp.Id) {
-          state.shoppingCart[i].Num=payload.Num
+        // 判断效果的商品数量是否大于限购数量或小于1
+        if (payload.prop === 'Num' && payload.val < temp.MaxNum && payload.val > 1) {
+          state.shoppingCart[payload.key][payload.prop] = payload.val
+          console.log(state.shoppingCart[payload.key])
+          return
+        }else if (payload.prop === 'check'&& payload.key[0].GoodsId == temp.GoodsId) {
+          state.shoppingCart[i][payload.prop] = payload.val
+          console.log(payload)
+          return
         }
       }
     },
@@ -107,7 +119,7 @@ export default {
       // 根据购物车id删除购物车商品
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
-        if (temp.product_id == id) {
+        if (temp.GoodsId == id) {
           state.shoppingCart.splice(i, 1)
         }
       }
@@ -120,19 +132,19 @@ export default {
     }
   },
   actions: {
-    setShoppingCart({ commit }, data) {
+    setShoppingCart({commit}, data) {
       commit('setShoppingCart', data)
     },
-    addShoppingCart({ commit }, data) {
+    addShoppingCart({commit}, data) {
       commit('addShoppingCart', data)
     },
-    updateShoppingCart({ commit }, payload) {
+    updateShoppingCart({commit}, payload) {
       commit('updateShoppingCart', payload)
     },
-    deleteShoppingCart({ commit }, id) {
+    deleteShoppingCart({commit}, id) {
       commit('deleteShoppingCart', id)
     },
-    checkAll({ commit }, data) {
+    checkAll({commit}, data) {
       commit('checkAll', data)
     }
   }

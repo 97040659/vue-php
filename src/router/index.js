@@ -27,17 +27,21 @@ const routes = [
       {
         path: '/goods',
         name: 'Goods',
-        component: () => import('@/views/buyer/goods/Goods.vue')
+        component: () => import('@/views/buyer/goods/Goods.vue'),
       },
       {
         path: '/goods/details',
         name: 'Details',
-        component: () => import('@/views/buyer/goods/Details.vue')
+        component: () => import('@/views/buyer/goods/Details.vue'),
       },
       {
         path: '/feedback',
         name: 'Feedback',
-        component: () => import('@/views/buyer/feedback/Feedback.vue')
+        component: () => import('@/views/buyer/feedback/Feedback.vue'),
+        meta: {
+          showMenu: false,
+          requireAuth: true // 需要验证登录状态
+        }
       },
       {
         path: '/cart',
@@ -45,7 +49,7 @@ const routes = [
         component: () => import('@/views/buyer/profile/cart/Cart.vue'),
         meta: {
           showMenu: false,
-          // requireAuth: true // 需要验证登录状态
+          requireAuth: true // 需要验证登录状态
         }
       },
       {
@@ -53,6 +57,7 @@ const routes = [
         name: 'Favorite',
         component: () => import('@/views/buyer/profile/favorite/Favorite.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },
@@ -61,6 +66,7 @@ const routes = [
         name: 'Order',
         component: () => import('@/views/buyer/profile/order/Order.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },
@@ -78,6 +84,7 @@ const routes = [
         name: 'OrderDetails',
         component: () => import('@/views/buyer/profile/order/OrderDetails.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },
@@ -86,6 +93,7 @@ const routes = [
         name: 'Center',
         component: () => import('@/views/buyer/profile/personalCenter/Center.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },
@@ -94,6 +102,7 @@ const routes = [
         name: 'UserDetails',
         component: () => import('@/views/buyer/profile/personalCenter/UserDetails.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },
@@ -102,6 +111,7 @@ const routes = [
         name: 'UserPass',
         component: () => import('@/views/buyer/profile/personalCenter/UserPass.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },
@@ -110,6 +120,7 @@ const routes = [
         name: 'UserAddress',
         component: () => import('@/views/buyer/profile/personalCenter/UserAddress.vue'),
         meta: {
+          showMenu: false,
           requireAuth: true // 需要验证登录状态
         }
       },

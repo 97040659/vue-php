@@ -20,17 +20,9 @@ export function saveOrder(data) {
     data
   })
 }
-//取消订单，等待处理
-export function cancelOrder(data) {
+export function dealOrder(data) {
   return request({
-    url: '/api/Order/cancelOrder',
-    method: 'post',
-    data
-  })
-}
-export function deleteOrder(data) {
-  return request({
-    url: '/api/Order/deleteOrder',
+    url: '/api/Order/dealOrder',
     method: 'post',
     data
   })

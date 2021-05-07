@@ -1,7 +1,7 @@
 <template>
     <el-container>
       <!-- 顶部导航栏 -->
-      <div class="topbar" v-show="$route.meta.showMenu!==false">
+      <div class="topbar">
         <div class="nav">
           <ul>
             <li class="font">
@@ -46,7 +46,7 @@
               <div>
                 <el-dropdown>
                   <span class="el-dropdown-link">
-                    <router-link to="/goods">购物导航</router-link>
+                    <router-link :to="{path: '/goods',query: { categoryID: [] }}">购物导航</router-link>
                     <i class="el-icon-caret-bottom"></i>
                   </span>
                   <el-dropdown-menu slot="dropdown">
@@ -145,6 +145,7 @@
   import {getCart} from '@/api/cart'
   import { mapActions } from 'vuex'
   import { mapGetters } from 'vuex'
+  import {getCategory} from "@/api/category";
   export default {
     name: "layout",
     data(){
@@ -177,8 +178,10 @@
           userid:window.sessionStorage.getItem('userid')
         }
         const user=await getInfo(userid)
+        const category=await getCategory()
         const cart=await getCart(userid)
         this.setBuyer(user.data[0])
+        this.categoryList=category.data
         this.setShoppingCart(cart.data)
       },
       logout(){

@@ -53,9 +53,10 @@
 </template>
 
 <script>
-  import {getGoods} from "@/api/goods";
+  import {getGoods,updateClick} from "@/api/goods";
   import {getCategory} from "@/api/category";
   import MyList from "@/components/MyList";
+  import {mapActions} from "vuex";
 
   export default {
     name: "Goods",
@@ -82,6 +83,9 @@
       this.getCategory()
       this.fetchData()
     },
+    beforeUpdate() {
+      this.updateClick()
+    },
     activated() {
       this.activeName = '-1' // 初始化分类列表当前选中的id为-1
       this.total = 0 // 初始化商品总量为0
@@ -97,6 +101,8 @@
         this.categoryID = this.$route.query.categoryID
         if (this.categoryID.length == 1) {
           this.activeName = '' + this.categoryID[0]
+        }else {
+          this.fetchData()
         }
         return
       }
@@ -166,6 +172,12 @@
         const cate = data.data
         cate.unshift(val)
         this.categoryList=cate
+      },
+      async updateClick(){
+        const click=this.$store.getters.getClick
+        for (let i=0;i<click.length;i++){
+          await updateClick(click[i])
+        }
       },
       handleSizeChange(val) {
         this.param.limit = val

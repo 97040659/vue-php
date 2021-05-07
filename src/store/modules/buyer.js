@@ -19,7 +19,7 @@ export default {
   actions: {
     setBuyer({ commit }, data) {
       commit('setBuyer', data)
-      console.log(data)
+      // console.log(data)
     }
   }
 }

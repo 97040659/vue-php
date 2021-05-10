@@ -34,6 +34,13 @@ export function Logout(data) {
     data
   })
 }
+export function picture(data) {
+  return request({
+    url: '/api/Login/picture',
+    method: 'post',
+    data
+  })
+}
 // import axios from 'axios'
 //
 // const getInfo = () =>

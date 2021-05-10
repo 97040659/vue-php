@@ -54,10 +54,10 @@
 </template>
 
 <script>
-  import {saveCart} from "@/api/cart";
+  import {saveCart,getCart} from "@/api/cart";
   import {saveFavorite} from "@/api/favorite";
   import {getInfo} from "@/api/goods";
-  import {mapActions, mapGetters, mapMutations} from "vuex";
+  import {mapActions, mapGetters} from "vuex";
 
   export default {
     name: "Details",
@@ -92,13 +92,14 @@
             let temp=this.click[i]
             if(temp.GoodsId==this.productID){
               this.product.Click=temp.Click
-              console.log(temp.Click)
+              // console.log(temp.Click)
             }
           }
         }
       }
     },
     computed:{
+      ...mapGetters(['getShoppingCart']),
       isMax:function () {
         if(this.product.Num<1){
           this.isShow=!this.isShow
@@ -107,8 +108,7 @@
       }
     },
     methods: {
-      ...mapMutations(['getClickById']),
-      ...mapActions(['addShoppingCart']),
+      ...mapActions(['addShoppingCart','setShoppingCart']),
       // 获取商品详细信息
       async fetchData() {
         const goods={
@@ -118,7 +118,7 @@
         this.product=data.data[0]
       },
       // 加入购物车
-      addCart() {
+      async addCart() {
         var form = {
           UserId: this.$store.getters.getBuyer.UserId,
           GoodsId: Number(this.productID),
@@ -130,7 +130,13 @@
           check:true
         }
         this.addShoppingCart(form)
-        this.$router.push('/cart')
+        const cart=this.getShoppingCart
+        const data=await saveCart(cart[cart.length-1])
+        if(data.code==200){
+          this.$router.push('/cart')
+        }else {
+          this.$baseMessage(data.msg,'error')
+        }
       },
       async addFavorite() {
         var form = {

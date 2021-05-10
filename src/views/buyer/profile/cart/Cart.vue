@@ -3,11 +3,6 @@
     <!-- 购物车头部 -->
     <div class="top-header">
       <div class="cart-header">
-        <!--        <div class="logo">-->
-        <!--          <router-link to="/buyer">-->
-        <!--            <img src="" alt/>-->
-        <!--          </router-link>-->
-        <!--        </div>-->
         <div class="cart-header-content">
           <p>我的购物车</p>
           <span>温馨提示：产品是否购买成功，以最终下单为准哦，请尽快结算</span>
@@ -23,70 +18,12 @@
 
     <!-- 购物车主要内容区 -->
     <div class="cart-content" v-if="getShoppingCart.length>0">
-      <!--      <ul>-->
-      <!--        &lt;!&ndash; 购物车表头 &ndash;&gt;-->
-      <!--        <li class="content-header">-->
-      <!--          <div class="pro-check">-->
-      <!--            <el-checkbox v-model="isAllCheck">全选</el-checkbox>-->
-      <!--          </div>-->
-      <!--          <div class="pro-img"></div>-->
-      <!--          <div class="pro-name">商品名称</div>-->
-      <!--          <div class="pro-price">单价</div>-->
-      <!--          <div class="pro-num">数量</div>-->
-      <!--          <div class="pro-total">小计</div>-->
-      <!--          <div class="pro-action">操作</div>-->
-      <!--        </li>-->
-      <!--        &lt;!&ndash; 购物车表头END &ndash;&gt;-->
-
-      <!--        &lt;!&ndash; 购物车列表 &ndash;&gt;-->
-      <!--        <li class="product-list" v-for="(item,index) in getShoppingCart" :key="item.id">-->
-      <!--          <div class="pro-check">-->
-      <!--            <el-checkbox :value="item.check" @change="checkChange($event,index)"></el-checkbox>-->
-      <!--          </div>-->
-      <!--          <div class="pro-img">-->
-      <!--            <router-link :to="{ path: '/goods/details', query: {productID:item.GoodsId} }">-->
-      <!--              <img :src="item.GoodsImg"/>-->
-      <!--            </router-link>-->
-      <!--          </div>-->
-      <!--          <div class="pro-name">-->
-      <!--            <router-link-->
-      <!--                :to="{ path: '/goods/details', query: {productID:item.GoodsId} }"-->
-      <!--            >{{item.Name}}-->
-      <!--            </router-link>-->
-      <!--          </div>-->
-      <!--          <div class="pro-price">{{item.Price}}元</div>-->
-      <!--          <div class="pro-num">-->
-      <!--            <el-input-number-->
-      <!--                size="small"-->
-      <!--                :value="item.Num"-->
-      <!--                @change="handleChange($event,index,item.GoodsId)"-->
-      <!--                :min="1"-->
-      <!--                :max="item.MaxNum"-->
-      <!--            ></el-input-number>-->
-      <!--          </div>-->
-      <!--          <div class="pro-total pro-total-in">{{item.Price*item.Num}}元</div>-->
-      <!--          <div class="pro-action">-->
-      <!--            <el-popover placement="right">-->
-      <!--              <p>确定删除吗？</p>-->
-      <!--              <div style="text-align: right; margin: 10px 0 0">-->
-      <!--                <el-button-->
-      <!--                    type="primary"-->
-      <!--                    size="mini"-->
-      <!--                    @click="deleteItem($event,item.id,item.product_id)"-->
-      <!--                >确定-->
-      <!--                </el-button>-->
-      <!--              </div>-->
-      <!--              <i class="el-icon-error" slot="reference" style="font-size: 18px"></i>-->
-      <!--            </el-popover>-->
-      <!--          </div>-->
-      <!--        </li>-->
-      <!--        &lt;!&ndash; 购物车列表END &ndash;&gt;-->
-      <!--      </ul>-->
       <el-card class="box-card">
         <el-table
             ref="cart"
             :data="list"
-            :height="height"
+            tooltip-effect="dark"
+            style="font-size: 24px"
             @selection-change="setSelectRows"
         >
           <el-table-column
@@ -99,6 +36,8 @@
               <el-image
                   :preview-src-list="imageList"
                   :src="row.GoodsImg"
+                  style="width: 120px;height: 100px;"
+                  fit="scale-down"
               ></el-image>
             </template>
           </el-table-column>
@@ -106,7 +45,7 @@
               show-overflow-tooltip
               label="名字"
               prop="GoodsName"
-              width="95">
+              width="180">
           </el-table-column>
           <el-table-column show-overflow-tooltip label="数量">
             <template slot-scope="scope">
@@ -129,9 +68,9 @@
               {{row.Price*row.Num}}元
             </template>
           </el-table-column>
-          <el-table-column show-overflow-tooltip label="操作">
+          <el-table-column show-overflow-tooltip label="操作" width="80">
             <template slot-scope="scope">
-              <i icon="el-icon-circle-close" @click="deleteItem(scope.rows,scope.$index)"></i>
+              <i class="el-icon-circle-close" @click="deleteItem(scope.row,scope.$index)"></i>
             </template>
           </el-table-column>
         </el-table>
@@ -175,12 +114,12 @@
 </template>
 
 <script>
-  import {saveCart} from "@/api/cart";
+  import {saveCart, getCart, deleteCart} from "@/api/cart";
   import {mapActions, mapGetters} from "vuex";
 
   export default {
     name: "Cart",
-    inject:['reload'],
+    inject: ['reload'],
     data() {
       return {
         list: [],
@@ -188,67 +127,76 @@
         selectRows: '',
       }
     },
-    created() {
+    activated() {
+      this.list = []
+      this.imageList = []
+      this.selectRows = ''
       this.fetchData()
+    },
+    beforeRouteLeave(to, from, next) {
+      this.updateCart()
+      next()
     },
     computed: {
       ...mapGetters([
         'getShoppingCart',
         'getCheckNum',
         'getTotalPrice',
-        'getNum'
+        'getNum',
+        'getUserId'
       ]),
-      height: function () {
-        return document.documentElement.clientHeight
-      }
-      // isAllCheck: {
-      //   get() {
-      //     return this.$store.getters.getIsAllCheck
-      //   },
-      //   set(val) {
-      //     this.checkAll(val)
-      //   }
-      // }
     },
     methods: {
-      ...mapActions(['updateShoppingCart', 'deleteShoppingCart', 'checkAll']),
+      ...mapActions(['updateShoppingCart', 'deleteShoppingCart', 'setShoppingCart']),
       async fetchData() {
+        const userid = {
+          userid: window.sessionStorage.getItem('userid')
+        }
+        const cart = await getCart(userid)
+        this.setShoppingCart(cart.data)
         this.list = this.$store.getters.getShoppingCart
-        // this.list.map((item,index)=>{
-        //   this.$set(item,'Num',1)
-        // })
+        // console.log(this.list)
         this.toggleSelection(this.list)
       },
       setSelectRows(val) {
         this.selectRows = val
-        this.updateShoppingCart({key: val, prop: 'check', val: true})
+        // console.log(this.selectRows)
+        this.updateShoppingCart({key: this.selectRows, prop: 'check', val: true})
       },
       toggleSelection(rows) {
         if (rows) {
           rows.forEach(row => {
-            if(row.check!==false){
-            this.$nextTick().then(function () {
-            this.$refs['cart'].toggleRowSelection(row);})
+            if (row.check !== false) {
+              this.$nextTick().then(function () {
+                this.$refs['cart'].toggleRowSelection(row);
+              })
             }
           });
         } else {
           this.$refs['cart'].clearSelection();
         }
       },
-      handleChange(val,key) {
+      handleChange(val, key) {
         // 当修改数量时，默认勾选
-        // console.log(key)
-        // console.log(val)
-        this.list[key].Num=val
+        this.list[key].Num = val
         this.updateShoppingCart({key: key, prop: 'Num', val: val})
+        console.log(this.selectRows);
       },
-      // 向后端发起删除购物车的数据库信息请求
-      deleteItem(val,key) {
-        this.list.splice(key,1)
-        this.deleteShoppingCart(val.GoodsId)
-        if(!this.list){
-          this.reload()
+      async updateCart() {
+        if (this.selectRows.length > 0) {
+          for (let i = 0; i < this.selectRows.length; i++) {
+            const data = await saveCart(this.selectRows[i])
+            if (data.code == 200) {
+              this.$baseMessage(data.msg, 'success')
+            }
+          }
         }
+      },
+      // 删除vuex中的购物车
+      async deleteItem(val, key) {
+        console.log(val)
+        await deleteCart(val)
+        this.fetchData()
       },
     },
   }
@@ -392,13 +340,13 @@
     margin-left: 24px;
   }
 
-  .shoppingCart .cart-content ul .pro-img {
+  .shoppingCart .cart-content .pro-img {
     float: left;
-    height: 85px;
-    width: 120px;
+    height: 80px;
+    width: 80px;
   }
 
-  .shoppingCart .cart-content ul .pro-img img {
+  .shoppingCart .cart-content .pro-img img {
     height: 80px;
     width: 80px;
   }
@@ -458,7 +406,7 @@
     height: 50px;
     line-height: 50px;
     background-color: #fff;
-    margin-bottom: 150px;
+    margin-bottom: 30px;
   }
 
   .shoppingCart .cart-bar .cart-bar-left {

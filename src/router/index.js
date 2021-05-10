@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Layout from '@/views/buyer/layout/index'
+import {getInfo} from "@/api/user";
 Vue.use(VueRouter)
 
 const routes = [
@@ -152,6 +153,11 @@ const routes = [
         name: 'Address',
         component: () => import('@/views/business/address/index'),
       },
+      {
+        path: '/upload',
+        name: 'Upload',
+        component: () => import('@/views/business/upload'),
+      },
     ]
   },
   {
@@ -167,7 +173,7 @@ const router = new VueRouter({
   routes
 })
 
-router.beforeResolve((to, from, next) => {
+router.beforeResolve(async (to, from, next) => {
   if(to.path==='/'){
     next('/login')
   }

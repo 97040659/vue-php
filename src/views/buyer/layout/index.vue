@@ -159,11 +159,11 @@
     beforeUpdate() {
       this.activeIndex = this.$route.path
     },
-    created() {
+    mounted() {
       this.getInfo()
     },
-    beforeDestroy() {
-
+    activated() {
+      this.getInfo()
     },
     computed: {
       ...mapGetters(['getBuyer','getNum']),

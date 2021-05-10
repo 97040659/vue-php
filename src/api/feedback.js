@@ -13,6 +13,13 @@ export function getInfo(data) {
     data
   })
 }
+export function feedbackCount(data) {
+  return request({
+    url: '/api/feedback/feedbackCount',
+    method: 'post',
+    data
+  })
+}
 export function saveFeedback(data) {
   return request({
     url: '/api/feedback/saveFeedback',

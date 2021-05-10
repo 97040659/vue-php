@@ -6,6 +6,20 @@ export function getList(data) {
     data
   })
 }
+export function isFavorite(data) {
+  return request({
+    url: '/api/favorite/isFavorite',
+    method: 'post',
+    data
+  })
+}
+export function favoriteCount(data) {
+  return request({
+    url: '/api/favorite/favoriteCount',
+    method: 'post',
+    data
+  })
+}
 export function saveFavorite(data) {
   return request({
     url: '/api/favorite/saveFavorite',

@@ -11,7 +11,7 @@
           <i class="el-icon-close delete" slot="reference" v-show="isDelete"></i>
         </el-popover>
         <router-link :to="{ path: '/goods/details', query: {productID:item.GoodsId} }">
-          <img :src="item.GoodsImg" alt />
+          <img :src="item.GoodsImg" alt/>
           <h2>{{item.GoodsName}}</h2>
           <h3>{{item.GoodsInfo}}</h3>
           <p>
@@ -39,16 +39,16 @@
     props: ['list', 'isMore', 'isDelete'],
     data() {
       return {
-        id:'',
-        key:''
+        id: '',
+        key: ''
       }
     },
-    beforeRouteLeave(){
+    beforeRouteLeave() {
 
     },
     computed: {
       // 通过list获取当前显示的商品的分类ID，用于“浏览更多”链接的参数
-      categoryID: function() {
+      categoryID: function () {
         let categoryID = []
         if (this.list != '') {
           for (let i = 0; i < this.list.length; i++) {
@@ -62,32 +62,33 @@
       }
     },
     methods: {
-      ...mapActions(['setClick','getClickById']),
+      ...mapActions(['setClick', 'getClickById']),
       async deleteFavorite(productId, index) {
         var form = {
-          UserId: this.$store.getters.getBuyer.UserId,
+          userid: window.sessionStorage.getItem('userid'),
           GoodsId: productId
         }
-        const data=deleteFavorite(form)
-            if (data.code === 200) {
-              this.list.splice(index, 1)
-              this.$baseMessage(data.msg,'success')
-            } else {
-              this.$baseMessage(data.msg,'error')
-            }
+        const data = await deleteFavorite(form)
+        console.log(data)
+        if (data.code === 200) {
+          this.list.splice(index, 1)
+          this.$baseMessage(data.msg, 'success')
+        } else {
+          this.$baseMessage(data.msg, 'error')
+        }
       },
-    //   handleChange(key,id){
-    //     // this.handelUpdate(key,id)
-    //     console.log(key)
-    //   },
-    //   async handelUpdate(key,id){
-    //     const data= {
-    //       GoodsId:id,
-    //       Click:this.list[key].Click++
-    //     }
-    //     const res=await updateClick(data)
-    //     console.log(res)
-    //   },
+      //   handleChange(key,id){
+      //     // this.handelUpdate(key,id)
+      //     console.log(key)
+      //   },
+      //   async handelUpdate(key,id){
+      //     const data= {
+      //       GoodsId:id,
+      //       Click:this.list[key].Click++
+      //     }
+      //     const res=await updateClick(data)
+      //     console.log(res)
+      //   },
     }
   }
 </script>
@@ -105,6 +106,7 @@
     transition: all 0.2s linear;
     position: relative;
   }
+
   .myList ul li:hover {
     z-index: 2;
     -webkit-box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
@@ -112,6 +114,7 @@
     -webkit-transform: translate3d(0, -2px, 0);
     transform: translate3d(0, -2px, 0);
   }
+
   .myList ul li img {
     display: block;
     width: 160px;
@@ -119,6 +122,7 @@
     background: url(../assets/imgs/placeholder.png) no-repeat 50%;
     margin: 0 auto;
   }
+
   .myList ul li h2 {
     margin: 25px 10px 0;
     font-size: 14px;
@@ -129,6 +133,7 @@
     white-space: nowrap;
     overflow: hidden;
   }
+
   .myList ul li h3 {
     margin: 5px 10px;
     height: 18px;
@@ -140,36 +145,44 @@
     white-space: nowrap;
     overflow: hidden;
   }
+
   .myList ul li p {
     margin: 10px 10px 10px;
     text-align: center;
     color: #ff6700;
   }
+
   .myList ul li p .del {
     margin-left: 0.5em;
     color: #b0b0b0;
     text-decoration: line-through;
   }
+
   .myList #more {
     text-align: center;
     line-height: 280px;
   }
+
   .myList #more a {
     font-size: 18px;
     color: #333;
   }
+
   .myList #more a:hover {
     color: #ff6700;
   }
+
   .myList ul li .delete {
     position: absolute;
     top: 10px;
     right: 10px;
     display: none;
   }
+
   .myList ul li:hover .delete {
     display: block;
   }
+
   .myList ul li .delete:hover {
     color: #ff6700;
   }

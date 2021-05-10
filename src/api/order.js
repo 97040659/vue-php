@@ -13,6 +13,13 @@ export function getInfo(data) {
     data
   })
 }
+export function getCount(data) {
+  return request({
+    url: '/api/Order/getCount',
+    method: 'post',
+    data
+  })
+}
 export function saveOrder(data) {
   return request({
     url: '/api/Order/saveOrder',

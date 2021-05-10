@@ -45,7 +45,8 @@
 <script>
   import MyList from "@/components/MyList";
   import CenterMenu from "@/components/CenterMenu";
-  import {getList,saveFavorite,deleteFavorite} from "@/api/favorite";
+  import {getList, deleteFavorite} from "@/api/favorite";
+  import {getInfo} from "@/api/goods";
 
   export default {
     name: "Favorite",
@@ -58,7 +59,7 @@
         collectList: [],
         total: 0,
         param: {
-          id:'',
+          id: '',
           page: 1, //分页，即第几页的数据
           limit: 10 //每页条数，即每页的数据数
         },
@@ -75,14 +76,18 @@
       },
       async getFavorites() {
         // 获取收藏数据
-        this.param.id=this.$store.getters.getBuyer.UserId
-        const data=await getList(this.param)
-            if (data.code === 200) {
-              this.collectList = data.data
-              this.total = data.total
-            } else {
-              this.$baseMessage('获取收藏夹失败','error')
-            }
+        this.param.id = window.sessionStorage.getItem('userid')
+        const favorite = await getList(this.param)
+        console.log(favorite)
+        if (favorite.code === 200) {
+          this.total = favorite.total
+          for (let i = 0; i < favorite.data.length; i++) {
+            let data = await getInfo({GoodsId:favorite.data[i].GoodsId})
+            this.collectList.push(data.data[0])
+          }
+        } else {
+          this.$baseMessage('获取收藏夹失败', 'error')
+        }
       }
     },
     activated() {
@@ -97,31 +102,38 @@
     max-width: 1225px;
     margin: 0 auto;
   }
+
   .favorite-content {
     background-color: #ffffff;
     margin-bottom: 30px;
   }
+
   .favorite-title {
     height: 100px;
     display: flex;
     align-items: center;
   }
+
   .favorite-title p {
     font-size: 30px;
     color: #757575;
     margin-left: 50px;
   }
+
   .extra {
     height: 10px;
   }
+
   .goods-list {
     overflow: hidden;
   }
+
   .favorite-content .pagination {
     width: 300px;
     margin: 0 auto;
     margin-top: 20px;
   }
+
   .empty {
     width: 200px;
     margin: 0 auto;

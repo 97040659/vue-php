@@ -3,37 +3,11 @@
     <!-- 头部 -->
     <div class="top-header">
       <div class="cart-header">
-        <div class="logo">
-          <router-link to="/">
-            <img src="@/assets/imgs/clogo.png" alt/>
-          </router-link>
-        </div>
         <div class="cart-header-content">
           <p>确认订单</p>
         </div>
         <div class="cart-header-right">
-          <div class="cart-header-select">
-            <el-dropdown>
-              <router-link to class="href">
-                <span style="margin-right:5px">{{this.$store.getters.getBuyer.nickname}}</span>
-                <i class="el-icon-caret-bottom"></i>
-              </router-link>
-              <el-dropdown-menu slot="dropdown">
-                <router-link to="/buyer">
-                  <el-dropdown-item class="dropdown-menu">首页</el-dropdown-item>
-                </router-link>
-                <router-link to="/center">
-                  <el-dropdown-item class="dropdown-menu">个人中心</el-dropdown-item>
-                </router-link>
-                <router-link to="/favorite">
-                  <el-dropdown-item class="dropdown-menu">我的收藏</el-dropdown-item>
-                </router-link>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </div>
-
           <div class="cart-header-order">
-            <span>|</span>
             <router-link to="/order" class="href">我的订单</router-link>
           </div>
         </div>
@@ -47,24 +21,20 @@
       <div class="section-address">
         <p class="title">收货地址</p>
         <div class="address-body">
-          <ul>
-            <router-link to>
-              <li
-                  :class="item.id == confirmAddress ? 'in-section' : ''"
-                  v-for="item in address"
-                  :key="item.id"
-                  @click="selectAddress(item)"
-              >
-                <h2>{{item.name}}</h2>
-                <p class="phone">{{item.phone}}</p>
-                <p class="address">{{item.address}}</p>
-              </li>
-            </router-link>
-            <li class="add-address" @click="addVisible=true">
-              <i class="el-icon-circle-plus-outline"></i>
-              <p>添加新地址</p>
-            </li>
-          </ul>
+          <el-select v-model="confirmAddress" filterable placeholder="请选择">
+            <el-option
+                v-for="item in address"
+                :key="item.AddressId"
+                :label="item.Address"
+                :value="item.AddressId">
+              <span style="float: left;width: 300px">{{ item.Address }}</span>
+              <span style="float: left; color: #8492a6; font-size: 13px">{{ item.Phone }}</span>
+              <span style="float: right;margin-left: 20px">{{ item.Name }}</span>
+            </el-option>
+          </el-select>
+          <el-tooltip class="tooltip" content="添加新地址" placement="right" effect="light">
+            <i class="el-icon-circle-plus-outline" @click="addVisible=true"></i>
+          </el-tooltip>
         </div>
       </div>
       <!-- 选择地址END -->
@@ -74,13 +44,13 @@
         <p class="title">商品及优惠券</p>
         <div class="goods-list">
           <ul>
-            <li v-for="item in getCheckGoods" :key="item.id">
-              <img :src="item.img_path"/>
-              <span class="pro-name">{{item.name}}</span>
-              <span class="pro-price">{{item.discount_price}}元</span>
-              <span class="pro-num">x {{item.num}}</span>
+            <li v-for="item in getCheckGoods" :key="item.GoodsId">
+              <img :src="item.GoodsImg"/>
+              <span class="pro-name">{{item.GoodsName}}</span>
+              <span class="pro-price">{{item.Price}}元</span>
+              <span class="pro-num">x {{item.Num}}</span>
               <span class="pro-status"></span>
-              <span class="pro-total">{{item.discount_price * item.num}}元</span>
+              <span class="pro-total">{{item.Price * item.Num}}元</span>
             </li>
           </ul>
         </div>
@@ -115,18 +85,6 @@
               <span class="title">商品总价：</span>
               <span class="value">{{getTotalPrice}}元</span>
             </li>
-            <li>
-              <span class="title">活动优惠：</span>
-              <span class="value">-0元</span>
-            </li>
-            <li>
-              <span class="title">优惠券抵扣：</span>
-              <span class="value">-0元</span>
-            </li>
-            <li>
-              <span class="title">运费：</span>
-              <span class="value">0元</span>
-            </li>
             <li class="total">
               <span class="title">应付总额：</span>
               <span class="value">
@@ -152,13 +110,13 @@
     <el-dialog title="新建收货地址" :visible.sync="addVisible" width="30%">
       <el-form ref="form" :model="form" label-width="70px">
         <el-form-item label="姓名">
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="form.Name"></el-input>
         </el-form-item>
         <el-form-item label="手机号">
-          <el-input v-model="form.phone"></el-input>
+          <el-input v-model="form.Phone"></el-input>
         </el-form-item>
         <el-form-item label="详细地址">
-          <el-input type="textarea" rows="5" v-model="form.address"></el-input>
+          <el-input type="textarea" rows="5" v-model="form.Address"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -172,22 +130,25 @@
 
 <script>
   import {mapActions, mapGetters} from "vuex";
-  import {getList, save} from "../../../../api/address";
+  import {getList, save} from "@/api/address";
+  import {deleteCart} from "@/api/cart";
+  import {saveOrder} from "@/api/order";
 
   export default {
     name: "ConfirmOrder",
+    inject: ['reload'],
     data() {
       return {
         // 选择的地址id
-        confirmAddress: 0,
+        confirmAddress: '',
         // 地址列表
         address: [],
         addVisible: false,
         form: {
-          userid: '',
-          name: '',
-          phone: '',
-          address: ''
+          UserId: '',
+          Name: '',
+          Phone: '',
+          Address: ''
         }
       }
     },
@@ -205,27 +166,39 @@
     },
     methods: {
       ...mapActions(['deleteShoppingCart']),
-      selectAddress(item) {
-        this.confirmAddress = item.id
-      },
       async getAddress() {
         const user = {
-          userid: this.getters.getBuyer.UserId
+          userid: this.$store.getters.getBuyer.UserId
         }
         const data = await getList(user)
         this.address = data.data
+        console.log(this.address)
       },
-      addOrder() {
-        if (this.confirmAddress === 0) {
+      async addOrder() {
+        if (this.confirmAddress === '') {
           this.$baseMessage('请选择收货地址', 'error')
           return
         }
-        let orders = this.getCheckGoods
+        let order = this.getCheckGoods
+        let data
+        for (let i = 0; i < order.length; i++) {
+          order[i]['userid'] = this.$store.getters.getBuyer.UserId
+          order[i]['Address'] = this.confirmAddress
+          console.log(order[i])
+          data = await saveOrder(order[i])
+          await deleteCart(order[i])
+          this.deleteShoppingCart(order[i].GoodsId)
+        }
+        if (data.code == 200) {
+          this.$router.push('/order')
+        } else {
+          this.$baseMessage(data.msg, 'error')
+        }
       },
       async postEdit() {
         this.form.UserId = this.$store.getters.getBuyer.UserId
-        const data=await save(this.form)
-        this.address = data.data
+        const data = await save(this.form)
+        this.getAddress()
         this.addVisible = false
       }
     }
@@ -347,16 +320,13 @@
   .confirmOrder .confirm-content .address-body li {
     float: left;
     color: #333;
-    width: 210px;
-    height: 178px;
-    border: 1px solid #e0e0e0;
-    padding: 15px 24px 0;
-    margin-right: 17px;
-    margin-bottom: 24px;
+    width: 50px;
+    height: 50px;
   }
 
-  .confirmOrder .confirm-content .address-body .in-section {
-    border: 1px solid #ff6700;
+  .confirmOrder .confirm-content .address-body .tooltip {
+    margin-left: 20px;
+    margin-bottom: 0;
   }
 
   .confirmOrder .confirm-content .address-body li h2 {
@@ -417,28 +387,29 @@
 
   .confirmOrder .confirm-content .section-goods .goods-list li img {
     float: left;
-    width: 30px;
-    height: 30px;
+    width: 70px;
+    height: 70px;
     margin-right: 10px;
   }
 
   .confirmOrder .confirm-content .section-goods .goods-list li .pro-name {
     float: left;
-    width: 650px;
-    line-height: 30px;
+    margin-left: 50px;
+    width: 40%;
+    line-height: 70px;
   }
 
   .confirmOrder .confirm-content .section-goods .goods-list li .pro-price {
     float: left;
     width: 120px;
-    line-height: 30px;
+    line-height: 70px;
   }
 
   .confirmOrder .confirm-content .section-goods .goods-list li .pro-num {
     float: left;
-    width: 30px;
+    width: 50px;
     text-align: center;
-    line-height: 30px;
+    line-height: 70px;
   }
 
   .confirmOrder .confirm-content .section-goods .goods-list li .pro-status {
@@ -446,15 +417,15 @@
     width: 99px;
     height: 30px;
     text-align: center;
-    line-height: 30px;
+    line-height: 70px;
   }
 
   .confirmOrder .confirm-content .section-goods .goods-list li .pro-total {
     float: left;
-    width: 190px;
+    width: 200px;
     text-align: center;
     color: #ff6700;
-    line-height: 30px;
+    line-height: 70px;
   }
 
   /* 商品及优惠券CSS END */

@@ -12,6 +12,7 @@
           <el-menu-item index="/delete">注销</el-menu-item>
           <el-menu-item index="/update">更新</el-menu-item>
           <el-menu-item index="/address">地址</el-menu-item>
+          <el-menu-item index="/upload">上传</el-menu-item>
         </el-submenu>
       </el-menu>
     </el-aside>

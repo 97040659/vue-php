@@ -13,27 +13,29 @@
             </div>
             <div class="order-operate">
               <div class="order-num">订单号：{{order.OrderId}}</div>
-              <div class="order-button" v-if="order.type==1">
+              <div class="order-button" v-if="order.Status=='UnPay'">
                 <el-button class="cancel" type="info" size="small" style="width:120px" plain>取消订单</el-button>
-                <router-link :to="{ path: '/payment', query: {OrderId:order.OrderId}}">
+                <router-link :to="{ path: '/payment', query: {Id:order.Id}}">
                   <el-button class="pay" size="small" style="width:120px">立即付款</el-button>
                 </router-link>
               </div>
+              <div class="order-button" v-else-if="order.Status!=='Complete'">
+                <el-button class="cancel" type="info" size="small" style="width:120px" plain>取消订单</el-button>
+              </div>
             </div>
-            <div class="order-step-info" v-if="order.type==1">等待付款</div>
+            <div class="order-step-info" v-if="order.Status=='UnPay'">等待付款</div>
             <div class="order-success-info" v-else>已付款</div>
             <div class="order-step">
               <el-steps
                   :space="200"
-                  :active="order.type==1?1:5"
+                  :active="order.Status|statusFilter"
                   finish-status="success"
                   align-center
               >
-                <el-step title="下单" :description="order.createTime| dateFormat"></el-step>
-                <el-step title="付款" v-if="order.type==1"></el-step>
-                <el-step title="付款" :description="order.updated_at| dateFormat" v-else></el-step>
-                <el-step title="配货"></el-step>
-                <el-step title="出库"></el-step>
+                <el-step title="下单" :description="order.createTime"></el-step>
+                <el-step title="付款"></el-step>
+                <el-step title="出货"></el-step>
+                <el-step title="配送"></el-step>
                 <el-step title="交易成功"></el-step>
               </el-steps>
             </div>
@@ -42,22 +44,22 @@
 
             <div class="order-list-product">
               <div class="pro-img">
-                <router-link :to="{ path: '/goods/details', query: {productID:order.product_id} }">
-                  <img :src="order.img_path" />
+                <router-link :to="{ path: '/goods/details', query: {productID:order.GoodsId} }">
+                  <img :src="order.GoodsImg" />
                 </router-link>
               </div>
               <div class="pro-info">
                 <span style="margin-bottom:7px">
                   <router-link
                       class="info-href"
-                      :to="{ path: '/goods/details', query: {productID:order.product_id} }"
-                  >{{order.name}}</router-link>
+                      :to="{ path: '/goods/details', query: {productID:order.GoodsId} }"
+                  >{{order.GoodsName}}</router-link>
                 </span>
               </div>
               <div class="pro-price">
                 <span>
-                  {{order.price}}元&nbsp;×
-                  {{order.num}}
+                  {{order.Price}}元&nbsp;×
+                  {{order.GoodsNum}}
                 </span>
               </div>
             </div>
@@ -102,28 +104,16 @@
                 <ul>
                   <li>
                     <span class="title">商品件数：</span>
-                    <span class="value">{{order.num}}件</span>
+                    <span class="value">{{order.GoodsNum}}件</span>
                   </li>
                   <li>
                     <span class="title">商品总价：</span>
                     <span class="value">{{order.Price}}元</span>
                   </li>
-                  <li>
-                    <span class="title">活动优惠：</span>
-                    <span class="value">-0元</span>
-                  </li>
-                  <li>
-                    <span class="title">优惠券抵扣：</span>
-                    <span class="value">-0元</span>
-                  </li>
-                  <li>
-                    <span class="title">运费：</span>
-                    <span class="value">0元</span>
-                  </li>
                   <li class="total">
                     <span class="title">应付总额：</span>
                     <span class="value">
-                      <span class="total-price">{{order.num*order.Price}}</span>元
+                      <span class="total-price">{{order.GoodsNum*order.Price}}</span>元
                     </span>
                   </li>
                 </ul>
@@ -138,12 +128,25 @@
 </template>
 
 <script>
-  import CenterMenu from "../../../../components/CenterMenu";
+  import CenterMenu from "@/components/CenterMenu";
+  import {getInfo} from "@/api/order";
 
   export default {
     name: "OrderDetails",
     components: {
       CenterMenu
+    },
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          'UnPay': 1,
+          'Paid':2,
+          'UnSent': 3,
+          'UnReceive': 4,
+          'Complete': 5
+        }
+        return statusMap[status]
+      },
     },
     data() {
       return {
@@ -153,21 +156,22 @@
       }
     },
     activated() {
-      if (this.$route.query.orderNum != undefined) {
-        this.OrderId = this.$route.query.OrderId
+      if (this.$route.query.Id != undefined) {
+        this.OrderId = this.$route.query.Id
       }
     },
     watch: {
       // 监听商品id的变化，请求后端获取商品数据
       OrderId: function() {
-        this.load()
+        this.fetchData()
       }
     },
     methods: {
       async fetchData() {
-        const order={OrderId:this.OrderId}
-        const data=getInfo(order)
-        this.order=data.data
+        const order={id:this.OrderId}
+        const data=await getInfo(order)
+        console.log(data)
+        this.order=data.data[0]
       }
     },
   }

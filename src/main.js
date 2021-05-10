@@ -8,6 +8,7 @@ import '@/assets/css/global.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import VueLazyload from 'vue-lazyload'
+import {JSEncrypt} from "jsencrypt";
 Vue.use(VueLazyload, {
   preLoad: 1.3,
   attempt: 1, // 加载图片数量

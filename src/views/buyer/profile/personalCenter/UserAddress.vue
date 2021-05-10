@@ -14,26 +14,26 @@
             <div class="address-body">
               <ul>
                 <router-link to>
-                  <li class="add-address" @click="addVisible=true">
-                    <i class="el-icon-circle-plus-outline"></i>
-                    <p>添加新地址</p>
-                  </li>
-                </router-link>
-                <router-link to>
                   <li
-                      :class="item.id == confirmAddress ? 'in-section' : ''"
+                      :class="item.AddressId == confirmAddress ? 'in-section' : ''"
                       v-for="(item,index) in address"
-                      :key="item.id"
+                      :key="item.AddressId"
                       @mouseenter="mouseEnter(item)"
                       @mouseleave="mouseLeave(item)"
                   >
-                    <h2>{{item.name}}</h2>
-                    <p class="phone">{{item.phone}}</p>
-                    <p class="address">{{item.address}}</p>
+                    <h2>{{item.Name}}</h2>
+                    <p class="phone">{{item.Phone}}</p>
+                    <p class="address">{{item.Address}}</p>
                     <div class="operate" v-show="item.seen">
                       <span @click="edit(item)">修改</span>
-                      <span @click="deleteDialog(item.id,index)">删除</span>
+                      <span @click="deleteDialog(item.AddressId,index)">删除</span>
                     </div>
+                  </li>
+                </router-link>
+                <router-link to>
+                  <li class="add-address" @click="addVisible=true">
+                    <i class="el-icon-circle-plus-outline"></i>
+                    <p>添加新地址</p>
                   </li>
                 </router-link>
               </ul>
@@ -43,13 +43,13 @@
           <el-dialog title="新建收货地址" :visible.sync="addVisible" width="30%">
             <el-form ref="form" :model="form" label-width="70px">
               <el-form-item label="姓名">
-                <el-input v-model="form.name"></el-input>
+                <el-input v-model="form.Name"></el-input>
               </el-form-item>
               <el-form-item label="手机号">
-                <el-input v-model="form.phone"></el-input>
+                <el-input v-model="form.Phone"></el-input>
               </el-form-item>
               <el-form-item label="详细地址">
-                <el-input type="textarea" rows="5" v-model="form.address"></el-input>
+                <el-input type="textarea" rows="5" v-model="form.Address"></el-input>
               </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -62,13 +62,13 @@
           <el-dialog title="修改收货地址" :visible.sync="editVisible" width="30%">
             <el-form ref="form" :model="form" label-width="70px">
               <el-form-item label="姓名">
-                <el-input v-model="form.name"></el-input>
+                <el-input v-model="form.Name"></el-input>
               </el-form-item>
               <el-form-item label="手机号">
-                <el-input v-model="form.phone"></el-input>
+                <el-input v-model="form.Phone"></el-input>
               </el-form-item>
               <el-form-item label="详细地址">
-                <el-input type="textarea" rows="5" v-model="form.address"></el-input>
+                <el-input type="textarea" rows="5" v-model="form.Address"></el-input>
               </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -95,8 +95,14 @@
 </template>
 
 <script>
+  import CenterMenu from "@/components/CenterMenu";
+  import {getList,save,deleteAddress} from "@/api/address";
+
   export default {
     name: "UserAddress",
+    components: {
+      CenterMenu
+    },
     data() {
       return {
         address: [],
@@ -107,11 +113,11 @@
         addressID: 0,
         addressIndex: 0,
         form: {
-          id: '',
-          user_id: '',
-          name: '',
-          phone: '',
-          address: ''
+          AddressId: '',
+          UserId: '',
+          Name: '',
+          Phone: '',
+          Address: ''
         }
       }
     },
@@ -119,26 +125,15 @@
       this.getAddress()
     },
     methods: {
-      getAddress() {
-        addressesAPI
-          .showAddresses(this.$store.getters.getUser.id)
-          .then(res => {
-            if (res.status === 200) {
-              this.address = res.data
-            } else if (res.status === 20001) {
-              //token过期，需要重新登录
-              this.loginExpired(res.msg)
-            } else {
-              this.notifyError('获取收货地址失败', res.msg)
-            }
-          })
-          .catch(err => {
-            this.notifyError('获取收货地址失败', err)
-          })
+      async getAddress() {
+        const data=await getList({userid:window.sessionStorage.getItem('userid')})
+        this.address=data.data
+        console.log(this.address)
       },
       mouseEnter(item) {
+        console.log(item)
         item.seen = true
-        this.confirmAddress = item.id
+        this.confirmAddress = item.AddressId
       },
       mouseLeave(item) {
         item.seen = false
@@ -153,69 +148,23 @@
         this.addressIndex = index
         this.deleteVisible = true
       },
-      postEdit() {
-        this.form.user_id = this.$store.getters.getUser.id
-        addressesAPI
-          .postAddress(this.form)
-          .then(res => {
-            if (res.status === 200) {
-              this.address = res.data
-              this.addVisible = false
-              this.notifySucceed('新建收货地址成功')
-            } else if (res.status === 20001) {
-              //token过期，需要重新登录
-              this.loginExpired(res.msg)
-            } else {
-              this.notifyError('新建收货地址失败', res.msg)
-            }
-          })
-          .catch(err => {
-            this.notifyError('新建收货地址失败', err)
-          })
+      async postEdit() {
+        this.form.UserId = this.$store.getters.getUserId
+        await save(this.form)
+        this.addVisible = false
+        this.getAddress()
       },
-      saveEdit() {
-        this.form.user_id = this.$store.getters.getUser.id
-        addressesAPI
-          .updateAddress(this.form)
-          .then(res => {
-            if (res.status === 200) {
-              this.address = res.data
-              this.editVisible = false
-              this.notifySucceed('修改收货地址成功')
-            } else if (res.status === 20001) {
-              //token过期，需要重新登录
-              this.loginExpired(res.msg)
-            } else {
-              this.notifyError('修改收货地址失败', res.msg)
-            }
-          })
-          .catch(err => {
-            this.notifyError('修改收货地址失败', err)
-          })
+      async saveEdit() {
+        await save(this.form)
+        this.editVisible = false
+        this.getAddress()
       },
-      deleteAddress() {
-        addressesAPI
-          .deleteAddress(this.addressID)
-          .then(res => {
-            if (res.status === 200) {
-              this.address.splice(this.addressIndex, 1)
-              this.deleteVisible = false
-              this.notifySucceed('删除收货地址成功')
-            } else if (res.status === 20001) {
-              //token过期，需要重新登录
-              this.loginExpired(res.msg)
-            } else {
-              this.notifyError('删除收货地址失败', res.msg)
-            }
-          })
-          .catch(err => {
-            this.notifyError('删除收货地址失败', err)
-          })
+      async deleteAddress() {
+        await deleteAddress({AddressId:this.addressID})
+        this.deleteVisible = false
+        this.getAddress()
       }
     },
-    components: {
-      CenterMenu
-    }
   }
 </script>
 

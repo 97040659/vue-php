@@ -9,7 +9,13 @@ export default {
   getters: {
     getBuyer(state) {
       return state.buyer
-    }
+    },
+    getUserId(state) {
+      return state.buyer.UserId
+    },
+    getUserImg(state) {
+      return state.buyer.HeadImg
+    },
   },
   mutations: {
     setBuyer(state, data) {

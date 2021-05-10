@@ -71,48 +71,57 @@ export default {
   mutations: {
     setShoppingCart(state, data) {
       // 设置购物车状态
-      data.map(item=>{
-        item['check']=false
+      data.map(item => {
+        item['check'] = false
       })
       state.shoppingCart = data
     },
     addShoppingCart(state, data) {
       // 添加购物车
       // 用于在商品详情页点击添加购物车,后台添加成功后，更新vuex状态
-      if (state.shoppingCart.length < 1) {
+      if (state.shoppingCart==[]||state.shoppingCart.length < 1) {
         return state.shoppingCart.push(data)
       }
-      let key = 0
       for (let i = 0; i < state.shoppingCart.length; i++) {
         const temp = state.shoppingCart[i]
-        if (temp.GoodsId == data.GoodsId) {
+        if (temp.GoodsId === data.GoodsId) {
           if (data.Num < data.MaxNum) {
             state.shoppingCart[i].Num++
+            return
           } else {
             this.$baseMessage('该商品数量已经达到上限', 'warning')
+            return
           }
-        } else {
-          return state.shoppingCart.push(data)
         }
       }
+      state.shoppingCart.push(data)
+      console.log(state.shoppingCart)
     },
     updateShoppingCart(state, payload) {
       // 更新购物车
       // 可更新商品数量和是否勾选
       // 用于购物车点击勾选及加减商品数量
-      console.log(payload.key[0].GoodsId)
-      for (let i = 0; i < state.shoppingCart.length; i++) {
-        const temp = state.shoppingCart[i]
-        // 判断效果的商品数量是否大于限购数量或小于1
-        if (payload.prop === 'Num' && payload.val < temp.MaxNum && payload.val > 1) {
+      console.log(payload.key)
+      if (payload.prop === 'Num') {
+        if (payload.val < state.shoppingCart[payload.key].MaxNum && payload.val > 1) {
           state.shoppingCart[payload.key][payload.prop] = payload.val
           console.log(state.shoppingCart[payload.key])
           return
-        }else if (payload.prop === 'check'&& payload.key[0].GoodsId == temp.GoodsId) {
-          state.shoppingCart[i][payload.prop] = payload.val
-          console.log(payload)
-          return
         }
+      }
+      if (payload.prop === 'check') {
+        state.shoppingCart.forEach((item, i) => {
+          let bool=payload.key.some((val, j) => {
+            return item.GoodsId === val.GoodsId
+          })
+          if(bool==true){
+            item.check=true
+          }else {
+            item.check=false
+          }
+          console.log(item)
+        })
+        return
       }
     },
     deleteShoppingCart(state, id) {
@@ -123,6 +132,7 @@ export default {
           state.shoppingCart.splice(i, 1)
         }
       }
+      console.log(state.shoppingCart)
     },
     checkAll(state, data) {
       // 点击全选按钮，更改每个商品的勾选状态

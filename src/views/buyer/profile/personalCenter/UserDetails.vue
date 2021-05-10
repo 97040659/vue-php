@@ -16,23 +16,25 @@
                 <el-form-item label="头像:">
                   <el-upload
                       class="avatar-uploader"
-                      action
-                      label="描述"
                       ref="upload"
-                      :before-upload="fnBeforeUpload"
-                      :http-request="fnUploadRequest"
+                      action="http://www.phpdemo.com/api/Login/picture"
+                      :headers="{'Content-Type':'multipart/form-data'}"
+                      :before-upload="beforeUpload"
                       :show-file-list="false"
+                      accept="image/png, image/jpeg"
+                      list-type="picture-card"
                   >
-                    <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+                    <img v-if="form.HeadImg" :src="form.HeadImg" class="avatar">
+<!--                    <el-avatar v-if="form.HeadImg" :src="form.HeadImg" :size="178" fit="scale-down"></el-avatar>-->
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     <div class="el-upload__tip" slot="tip">点击上传头像,只能上传png/jpg文件，且不超过2M</div>
                   </el-upload>
                 </el-form-item>
-                <el-form-item prop="nickname" label="昵称:   ">
-                  <el-input v-model="form.nickname"></el-input>
+                <el-form-item prop="Name" label="昵称:   ">
+                  <el-input v-model="form.Name"></el-input>
                 </el-form-item>
-                <el-form-item prop="user_name" label="用户名:   ">
-                  <el-input v-model="form.user_name"></el-input>
+                <el-form-item prop="UserName" label="用户名:   ">
+                  <span>{{form.UserName}}</span>
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" style="margin-bottom:83px" @click="save('form')">保存</el-button>
@@ -47,8 +49,15 @@
 </template>
 
 <script>
+  import CenterMenu from "@/components/CenterMenu";
+  import {mapActions} from "vuex";
+  import {getInfo, picture} from "../../../../api/user";
+
   export default {
     name: "UserDetails",
+    components: {
+      CenterMenu
+    },
     data() {
       var validateNick = (rule, value, callback) => {
         if (value === '') {
@@ -58,31 +67,30 @@
         }
         callback()
       }
-      var validateUser = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请输入用户名'))
-        } else if (value.length < 5 || value.length > 15) {
-          callback(new Error('用户名长度需在5到15之间'))
-        }
-        callback()
-      }
       return {
-        imageUrl: '',
+        param:"",
         form: {
-          id: 0,
-          nickname: '',
-          avatar: '',
-          user_name: ''
+          UserId: '',
+          Name: '',
+          UserName: '',
+          HeadImg:''
         },
         rules: {
-          nickname: [{ validator: validateNick, trigger: 'blur' }],
-          user_name: [{ validator: validateUser, trigger: 'blur' }]
+          Name: [{ validator: validateNick, trigger: 'blur' }],
         }
       }
     },
+    beforeMount() {
+      this.fetchData()
+    },
     methods: {
-      ...mapActions(['setUser']),
-      fnBeforeUpload(file) {
+      ...mapActions(['setBuyer']),
+      async fetchData(){
+        const data=await getInfo({userid:window.sessionStorage.getItem('userid')})
+        this.form = data.data[0]
+        console.log(this.form)
+      },
+      beforeUpload(file) {
         const isPNG = file.type === 'image/png' || file.type === 'image/jpeg'
         const isLt2M = file.size / 1024 / 1024 < 2
         if (!isPNG) {
@@ -91,71 +99,33 @@
         if (!isLt2M) {
           this.$message.error('上传头像图片大小不能超过 2MB!')
         }
-        return isPNG && isLt2M
-      },
-      fnUploadRequest(option) {
-        uplpadAPI
-          .UploadAvatar(option.file.name)
-          .then(res => {
-            if (res.status === 200) {
-              const oReq = new XMLHttpRequest()
-              oReq.open('PUT', res.data.put, true)
-              oReq.send(option.file)
-              oReq.onload = () => {
-                this.imageUrl = res.data.get
-                this.form.avatar = res.data.key
-              }
-            } else if (res.status === 20001) {
-              //token过期，需要重新登录
-              this.loginExpired(res.msg)
-            } else {
-              this.notifyError('上传失败', res.msg)
-            }
-          })
-          .catch(error => {
-            this.notifyError('修改失败', error)
-          })
+        var windowURL = window.URL || window.webkitURL;
+        this.form.HeadImg=windowURL.createObjectURL(file);
+        //重新写一个表单上传的方法
+        this.param = new FormData();
+        this.param.append('file', file, file.name);
+        return false;
       },
       save(formName) {
-        this.$refs[formName].validate(valid => {
+        this.$refs[formName].validate(async (valid) => {
           if (!valid) {
             return
           }
-          userAPI
-            .updateUser(this.form)
-            .then(res => {
-              if (res.status === 200) {
-                // 登录信息存到本地
-                let user = JSON.stringify(res.data)
-                localStorage.setItem('user', user)
-                // 登录信息存到vuex
-                this.setUser(res.data)
-                this.notifySucceed('修改成功')
-                this.$router.push({
-                  name: 'Center'
-                })
-              } else if (res.status === 20001) {
-                //token过期，需要重新登录
-                this.loginExpired(res.msg)
-              } else {
-                this.notifyError('修改失败', res.msg)
-              }
-            })
-            .catch(error => {
-              this.notifyError('修改失败', error)
-            })
+          var name = this.form.Name;
+          var userid=this.form.UserId
+          this.param.append('data', [userid,name]);
+          const data=await picture(this.param)
+          if(data.code=200){
+            this.$baseMessage(data.msg,'success')
+            this.setBuyer(this.form)
+            console.log(this.$store.getters.getBuyer)
+          }else {
+            this.$baseMessage(data.msg,'error')
+            this.fetchData()
+          }
         })
       }
     },
-    beforeMount() {
-      this.form.id = this.$store.getters.getUser.id
-      this.form.user_name = this.$store.getters.getUser.user_name
-      this.form.nickname = this.$store.getters.getUser.nickname
-      this.imageUrl = this.$store.getters.getUser.avatar
-    },
-    components: {
-      CenterMenu
-    }
   }
 </script>
 
@@ -194,6 +164,8 @@
   }
 
   .avatar-uploader-icon {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
     font-size: 28px;
     color: #8c939d;
     width: 178px;
@@ -201,11 +173,10 @@
     line-height: 178px;
     text-align: center;
   }
-
   .avatar {
-    max-width: 178px;
-    max-height: 178px;
-    border-radius: 100%;
+    width: 178px;
+    height: 178px;
+    border-radius: 50%;
     display: block;
   }
   .extra {

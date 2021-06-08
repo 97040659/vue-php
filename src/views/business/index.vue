@@ -3,52 +3,56 @@
     <el-aside width="auto">
       <el-menu
           class="el-menu-vertical-demo"
+          style="background-color: #303643;"
           :collapse="isCollapse"
           router
       >
-        <el-submenu index="1">
-          <template slot="title"><i class="el-icon-message"></i>导航一</template>
-          <el-menu-item index="/business">主页</el-menu-item>
-          <el-menu-item index="/delete">注销</el-menu-item>
-          <el-menu-item index="/update">更新</el-menu-item>
-          <el-menu-item index="/address">地址</el-menu-item>
-          <el-menu-item index="/upload">上传</el-menu-item>
-        </el-submenu>
+<!--          <el-menu-item index="/business">-->
+<!--            <i class="el-icon-s-home" style="margin-right: 20px"></i>-->
+<!--            主页</el-menu-item>-->
+          <el-menu-item index="/goodsManagement" style="color: #b0b0b0;">
+            <i class="el-icon-s-goods" style="margin-right: 20px"></i>
+            商品管理</el-menu-item>
+          <el-menu-item index="/orderManagement" style="color: #b0b0b0;">
+            <i class="el-icon-s-order" style="margin-right: 20px"></i>
+            订单管理</el-menu-item>
+          <el-menu-item index="/addressManagement" style="color: #b0b0b0;">
+            <i class="el-icon-location" style="margin-right: 20px"></i>
+            地址管理</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header>
+      <el-header style="background-color: #303643;color: #b0b0b0;">
         <el-dropdown>
-          <i class="el-icon-setting" style="margin-right: 15px"></i>
-          <el-dropdown-menu slot="dropdown">
+          <el-dropdown-menu slot="dropdown" >
             <el-dropdown-item>
               <span @click="logout">登出</span>
             </el-dropdown-item>
-            <el-dropdown-item>
-              <el-link
-                  type="primary"
-                  href="/update"
-                  style="float:right;margin-bottom:10px;"
-              >修改</el-link>
-            </el-dropdown-item>
-            <el-dropdown-item>
-              <el-link
-                  type="primary"
-                  href="/delete"
-                  style="float:right;margin-bottom:10px;"
-              >注销</el-link>
-            </el-dropdown-item>
+<!--            <el-dropdown-item>-->
+<!--              <el-link-->
+<!--                  type="primary"-->
+<!--                  href="/update"-->
+<!--                  style="float:right;margin-bottom:10px;"-->
+<!--              >修改</el-link>-->
+<!--            </el-dropdown-item>-->
+<!--            <el-dropdown-item>-->
+<!--              <el-link-->
+<!--                  type="primary"-->
+<!--                  href="/delete"-->
+<!--                  style="float:right;margin-bottom:10px;"-->
+<!--              >注销</el-link>-->
+<!--            </el-dropdown-item>-->
           </el-dropdown-menu>
         </el-dropdown>
-        <span>王小虎</span>
+        <span style="margin-right: 15px">{{getBusiness.Name}}</span>
       </el-header>
       <div v-if="routerView">
       <el-main>
-        <el-breadcrumb separator-class="el-icon-arrow-right">
-          <el-breadcrumb-item :to="{ path: '/business' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-        </el-breadcrumb>
-        <el-divider></el-divider>
+<!--        <el-breadcrumb separator-class="el-icon-arrow-right">-->
+<!--          <el-breadcrumb-item :to="{ path: '/business' }">首页</el-breadcrumb-item>-->
+<!--          <el-breadcrumb-item>活动管理</el-breadcrumb-item>-->
+<!--        </el-breadcrumb>-->
+<!--        <el-divider></el-divider>-->
         <transition mode="out-in" name="el-fade-in-linear">
           <keep-alive :max="keepAliveMaxNum">
             <router-view :key="key" />
@@ -137,5 +141,8 @@
 
   .el-footer{
     text-align: center;
+  }
+  .el-main{
+    overflow-x: hidden;
   }
 </style>

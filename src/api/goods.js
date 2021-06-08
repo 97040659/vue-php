@@ -5,6 +5,12 @@ export function getGoods(data) {
     method: 'post',
     data
   })
+}export function getList(data) {
+  return request({
+    url: '/api/Goods/getList',
+    method: 'post',
+    data
+  })
 }
 export function getInfo(data) {
   return request({
@@ -13,16 +19,16 @@ export function getInfo(data) {
     data
   })
 }
-export function saveGood(data) {
+export function getCarousels(data) {
   return request({
-    url: '/api/Goods/saveGood',
+    url: '/api/Goods/getCarousels',
     method: 'post',
     data
   })
 }
-export function updateGood(data) {
+export function saveGoods(data) {
   return request({
-    url: '/api/Goods/updateGood',
+    url: '/api/Goods/saveGoods',
     method: 'post',
     data
   })
@@ -34,9 +40,9 @@ export function updateClick(data) {
     data
   })
 }
-export function deleteGood(data) {
+export function deleteGoods(data) {
   return request({
-    url: '/api/Goods/deleteGood',
+    url: '/api/Goods/deleteGoods',
     method: 'post',
     data
   })

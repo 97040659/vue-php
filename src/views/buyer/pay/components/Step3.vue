@@ -74,23 +74,23 @@
     },
   }
 </script>
-<style lang="scss" scoped>
+<style scoped>
   .pay-top-content {
     text-align: center;
+  }
 
-  .pay-success {
+  .pay-top-content .pay-success {
     display: block;
     margin: 20px auto 5px auto;
     font-size: 40px;
-    color: $base-color-green;
-  }
+    /*color: $base-color-green;*/
   }
 
   .pay-bottom {
     padding: 20px;
     margin-top: 20px;
     background: #f5f7f8;
-    border: 1px dashed $base-color-gray;
+    /*border: 1px dashed $base-color-gray;*/
   }
 
   .pay-button-group {

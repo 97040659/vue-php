@@ -6,7 +6,9 @@
         <p>{{ product.GoodsName }}</p>
         <div class="list">
           <div class="select">
-            <el-button type="text" class="list-select">用户评价</el-button>
+            <router-link :to="{ path: '/goodsAppraise', query: {productID:product.GoodsId} }">
+              <el-button type="text" class="list-select">用户评价</el-button>
+            </router-link>
           </div>
         </div>
       </div>
@@ -43,7 +45,8 @@
         <div class="button">
           <el-button class="shop-cart" icon="el-icon-shopping-cart-2" v-if="!isMax" @click="addCart">加入购物车</el-button>
           <el-button class="like" icon="el-icon-shopping-cart-2" v-else disabled>商品已售罄</el-button>
-          <el-button class="like" icon="el-icon-star-off" @click="addFavorite">喜欢</el-button>
+          <el-button class="like" icon="el-icon-star-off" v-if="!isFavorite" @click="addFavorite">喜欢</el-button>
+          <el-button class="like" icon="el-icon-star-off" v-else disabled>已收藏</el-button>
         </div>
       </div>
       <!-- 右侧内容区END -->
@@ -55,7 +58,7 @@
 
 <script>
   import {saveCart,getCart} from "@/api/cart";
-  import {saveFavorite} from "@/api/favorite";
+  import {saveFavorite,isFavorite} from "@/api/favorite";
   import {getInfo} from "@/api/goods";
   import {mapActions, mapGetters} from "vuex";
 
@@ -64,6 +67,7 @@
     data() {
       return {
         isShow: false, // 控制“加入购物车按钮是否可用”
+        isFavorite:false,
         productID: 0, // 商品id
         product: [], // 商品详细信息
         click: [],
@@ -76,6 +80,7 @@
     // 通过路由获取商品id
     activated() {
       this.click=[]
+      this.isFavorite=false
       if (this.$route.query.productID != undefined) {
         this.productID = this.$route.query.productID
         this.click=this.$store.getters.getClick
@@ -85,6 +90,7 @@
       // 监听商品id的变化，请求后端获取商品数据
       productID: function() {
         this.fetchData()
+        this.handleShow()
       },
       click:function () {
         if(this.click){
@@ -138,12 +144,25 @@
           this.$baseMessage(data.msg,'error')
         }
       },
+      async handleShow(){
+        var form = {
+          userid: this.$store.getters.getBuyer.UserId,
+          GoodsId: Number(this.productID)
+        }
+        const data=await isFavorite(form)
+        console.log(data)
+        this.isFavorite=false
+        if(data.code===200){
+          this.isFavorite=true
+        }
+      },
       async addFavorite() {
         var form = {
           userid: this.$store.getters.getBuyer.UserId,
           GoodsId: Number(this.productID)
         }
         const data =await saveFavorite(form)
+
         this.$router.push('/favorite')
       }
     },

@@ -1,208 +1,249 @@
 <template>
-  <div>
-    <el-card class="box-card">
-      <el-button type="primary" size="medium" @click="handleAdd">添加</el-button>
-      <el-input
-          placeholder="请输入内容"
-          style="width: 300px;margin-left: 20px;"
-          v-model="param.key"
-          clearable>
-      </el-input>
-      <el-button type="primary" icon="el-icon-search" size="medium" @click="search">搜索</el-button>
-<!--      表格-->
-      <el-table
-          :data="list"
-          border
-          style="width: 100%;margin-top: 10px">
-        <el-table-column
-            prop="AddressId"
-            label="id"
-            width="180">
-        </el-table-column>
-        <el-table-column
-            prop="UserId"
-            label="用户id"
-            width="180">
-        </el-table-column>
-        <el-table-column
-            prop="Address"
-            label="地址">
-        </el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <!--          {{scope.row}}-->
-            <el-button type="primary" size="mini" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-<!--      分页-->
-      <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="param.page"
-          :page-sizes="[10, 20, 50,100]"
-          :page-size="param.limit"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total">
-      </el-pagination>
-<!--      添加的表单-->
-      <el-dialog
-          title="添加表单"
-          :visible.sync="addDialogVisible"
-          width="30%"
-          :before-close="handleClose">
-        <el-form ref="form" :model="addForm" label-width="80px">
-          <el-form-item label="地址" prop="address">
-            <el-input v-model="addForm.Address"></el-input>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="addDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="addSave">确 定</el-button>
-        </span>
-      </el-dialog>
-<!--      编辑的表单-->
-      <el-dialog
-          title="编辑表单"
-          :visible.sync="editDialogVisible"
-          width="30%">
-        <el-form :model="editForm" label-width="80px">
-          <el-form-item label="地址">
-            <el-input v-model="editForm.Address"></el-input>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editSave">确 定</el-button>
-        </span>
-      </el-dialog>
-    </el-card>
+  <div class="address" id="address" name="address">
+    <div class="address-layout">
+      <el-row :gutter="10">
+        <el-col :span="20">
+          <div class="address-content">
+            <div class="extra"></div>
+            <div class="address-title">
+              <p>收货地址</p>
+            </div>
+            <div class="address-body">
+              <ul>
+                <router-link to>
+                  <li
+                      :class="item.AddressId == confirmAddress ? 'in-section' : ''"
+                      v-for="(item,index) in address"
+                      :key="item.AddressId"
+                      @mouseenter="mouseEnter(item)"
+                      @mouseleave="mouseLeave(item)"
+                  >
+                    <h2>{{item.Name}}</h2>
+                    <p class="phone">{{item.Phone}}</p>
+                    <p class="address">{{item.Address}}</p>
+                    <div class="operate" v-show="item.seen">
+                      <span @click="edit(item)">修改</span>
+                      <span @click="deleteDialog(item.AddressId,index)">删除</span>
+                    </div>
+                  </li>
+                </router-link>
+                <router-link to>
+                  <li class="add-address" @click="addVisible=true">
+                    <i class="el-icon-circle-plus-outline"></i>
+                    <p>添加新地址</p>
+                  </li>
+                </router-link>
+              </ul>
+            </div>
+          </div>
+          <!-- 新建收货地址弹出框 -->
+          <el-dialog title="新建收货地址" :visible.sync="addVisible" width="30%">
+            <el-form ref="form" :model="form" label-width="70px">
+              <el-form-item label="姓名">
+                <el-input v-model="form.Name"></el-input>
+              </el-form-item>
+              <el-form-item label="手机号">
+                <el-input v-model="form.Phone"></el-input>
+              </el-form-item>
+              <el-form-item label="详细地址">
+                <el-input type="textarea" rows="5" v-model="form.Address"></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="postEdit">确 定</el-button>
+              <el-button @click="addVisible = false">取 消</el-button>
+            </span>
+          </el-dialog>
+          <!-- 新建收货地址弹出框END -->
+          <!-- 修改收货地址弹出框 -->
+          <el-dialog title="修改收货地址" :visible.sync="editVisible" width="30%">
+            <el-form ref="form" :model="form" label-width="70px">
+              <el-form-item label="姓名">
+                <el-input v-model="form.Name"></el-input>
+              </el-form-item>
+              <el-form-item label="手机号">
+                <el-input v-model="form.Phone"></el-input>
+              </el-form-item>
+              <el-form-item label="详细地址">
+                <el-input type="textarea" rows="5" v-model="form.Address"></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="saveEdit">确 定</el-button>
+              <el-button @click="editVisible = false">取 消</el-button>
+            </span>
+          </el-dialog>
+          <!-- 修改收货地址弹出框END -->
+          <!-- 删除收货地址弹出框 -->
+          <el-dialog title="提示" :visible.sync="deleteVisible" width="30%" center>
+            <div class="delete-dialog">
+              <span>确认删除该地址吗？</span>
+            </div>
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="deleteAddress">确 定</el-button>
+              <el-button @click="deleteVisible = false">取 消</el-button>
+            </span>
+          </el-dialog>
+          <!-- 删除收货地址弹出框END -->
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
-  import {getList, deleteAddress,save} from '@/api/address'
+  import {getList,save,deleteAddress} from "@/api/address";
 
   export default {
-    name: "addressTable",
+    name: "AddressManagement",
     data() {
       return {
-        list: [{
+        address: [],
+        addVisible: false,
+        editVisible: false,
+        deleteVisible: false,
+        confirmAddress: 0, // 选择的地址id
+        addressID: 0,
+        addressIndex: 0,
+        form: {
           AddressId: '',
           UserId: '',
-          Address: ''
-        }],
-        param: {
-          key: '', //关键字
-          page: 1, //分页，即第几页的数据
-          limit: 10//每页条数，即每页的数据数
-        },
-        total: 0,
-        addDialogVisible:false,
-        editDialogVisible:false,
-        addForm:{
-          UserId: '',
-          Address: ''
-        },
-        editForm:{
-          AddressId: '',
-          UserId: '',
+          Name: '',
+          Phone: '',
           Address: ''
         }
       }
     },
     created() {
-      this.fetchData()
+      this.getAddress()
     },
     methods: {
-      async fetchData() {
-        const data = await getList(this.param)
-        this.list = data.data
-        console.log(data)
-        this.total = data.total
+      async getAddress() {
+        const data=await getList({userid:window.sessionStorage.getItem('userid')})
+        this.address=data.data
+        console.log(this.address)
       },
-      search() {
-        this.fetchData()
+      mouseEnter(item) {
+        console.log(item)
+        item.seen = true
+        this.confirmAddress = item.AddressId
       },
-      async addSave(){
-        //提交数据
-        const res=await save(this.addForm)
-        console.log(res)
-        if(res.code==200){
-          this.$baseMessage(res.msg,'success')
-          //关闭弹窗
-          this.addDialogVisible = false
-          //刷新表格
-          this.fetchData()
-          this.addForm.UserId=''
-          this.addForm.Address=''
-        }else {
-          this.$baseMessage(res.msg,'error')
-        }
+      mouseLeave(item) {
+        item.seen = false
+        this.confirmAddress = 0
       },
-      async editSave(){
-        //提交数据
-        const res=await save(this.editForm)
-        console.log(res)
-        if(res.code==200){
-          this.$baseMessage(res.msg,'success')
-          //关闭弹窗
-          this.editDialogVisible = false
-          //刷新表格
-          this.fetchData()
-          this.editForm.AddressId=''
-          this.editForm.UserId=''
-          this.editForm.Address=''
-        }else {
-          this.$baseMessage(res.msg,'error')
-        }
+      edit(item) {
+        this.form = item
+        this.editVisible = true
       },
-      handleSizeChange(val) {
-        this.param.limit = val
-        this.fetchData()
+      deleteDialog(val, index) {
+        this.addressID = val
+        this.addressIndex = index
+        this.deleteVisible = true
       },
-      handleCurrentChange(val) {
-        this.param.page = val
-        this.fetchData()
+      async postEdit() {
+        this.form.UserId = this.$store.getters.getUserId
+        await save(this.form)
+        this.addVisible = false
+        this.getAddress()
       },
-      handleAdd() {
-        this.addDialogVisible=true
-        this.addForm.UserId=this.list[0].UserId
+      async saveEdit() {
+        await save(this.form)
+        this.editVisible = false
+        this.getAddress()
       },
-      handleEdit(row) {
-        console.log(row);
-        this.editForm.AddressId=row.AddressId
-        this.editForm.UserId=row.UserId
-        this.editForm.Address=row.Address
-        this.editDialogVisible=true
-      },
-      async handleDelete(row) {
-        const data = {
-          AddressId: row.AddressId
-        }
-        const res = await deleteAddress(data)
-        if (res.code == 200) {
-          this.$baseMessage(res.msg, 'success')
-          this.fetchData()
-        } else {
-          this.$baseMessage(res.msg, 'error')
-        }
-      },
-      handleClose(val){
-        console.log(val)
+      async deleteAddress() {
+        await deleteAddress({AddressId:this.addressID})
+        this.deleteVisible = false
+        this.getAddress()
       }
-    }
+    },
   }
 </script>
 
 <style scoped>
-
-  .box-card {
-    width: 100%;
+  .address-layout {
+    max-width: 1225px;
+    margin: 0 auto;
+  }
+  .address-content {
+    background-color: #ffffff;
+    margin-bottom: 30px;
+  }
+  .address-title {
+    height: 100px;
+    display: flex;
+    align-items: center;
+  }
+  .address-title p {
+    font-size: 30px;
+    color: #757575;
+    margin-left: 50px;
+  }
+  .extra {
+    height: 10px;
+  }
+  /*收货地址列表*/
+  .address .address-layout .address-content .address-body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 250px;
+    width: 1080px;
+    margin: 0 auto;
+  }
+  .address .address-layout .address-content .address-body ul li {
+    float: left;
+    color: #333;
+    width: 220px;
+    height: 178px;
+    border: 1px solid #e0e0e0;
+    padding: 15px 24px 0;
+    margin-right: 17px;
+    margin-bottom: 24px;
+  }
+  .address .address-layout .address-content .address-body .in-section {
+    border: 1px solid #ff6700;
+  }
+  .address .address-layout .address-content .address-body li h2 {
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 30px;
+    margin-bottom: 10px;
+  }
+  .address .address-layout .address-content .address-body li p {
+    font-size: 14px;
+    color: #757575;
+  }
+  .address .address-layout .address-content .address-body li .address {
+    padding: 10px 0;
+    max-width: 180px;
+    height: 70px;
+    line-height: 22px;
+    overflow: hidden;
   }
 
-  .el-pagination {
-    margin-top: 10px;
+  .address .address-layout .address-content .address-body li .operate {
+    color: #ff6700;
+    font-size: 14px;
+    float: right;
+  }
+
+  .address .address-layout .address-content .address-body li .operate span {
+    margin-right: 10px;
+  }
+  .address .address-layout .address-content .address-body .add-address {
+    text-align: center;
+    line-height: 30px;
+  }
+  .address .address-layout .address-content .address-body .add-address i {
+    font-size: 30px;
+    padding-top: 50px;
+    text-align: center;
+  }
+  /*收货地址列表END*/
+  .address .address-layout .delete-dialog {
+    margin: 0 auto;
+    width: 180px;
+    font-size: 20px;
   }
 </style>

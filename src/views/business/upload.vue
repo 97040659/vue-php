@@ -56,7 +56,8 @@
           }
           var name = this.form.Name;
           var userid='6'
-          this.param.append('data', [userid,name]);
+          this.param.append('userid', userid);
+          this.param.append('name', name);
           const data=await picture(this.param)
           console.log(data)
         })

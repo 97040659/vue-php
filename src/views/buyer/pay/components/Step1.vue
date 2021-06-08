@@ -61,7 +61,7 @@
     },
   }
 </script>
-<style lang="scss" scoped>
+<style scoped>
   .pay-button-group {
     display: block;
     margin: 20px auto;

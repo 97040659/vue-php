@@ -168,7 +168,7 @@
       ...mapActions(['deleteShoppingCart']),
       async getAddress() {
         const user = {
-          userid: this.$store.getters.getBuyer.UserId
+          userid: window.sessionStorage.getItem('userid')
         }
         const data = await getList(user)
         this.address = data.data
@@ -182,8 +182,8 @@
         let order = this.getCheckGoods
         let data
         for (let i = 0; i < order.length; i++) {
-          order[i]['userid'] = this.$store.getters.getBuyer.UserId
-          order[i]['Address'] = this.confirmAddress
+          order[i]['BuyerId'] = this.$store.getters.getBuyer.UserId
+          order[i]['BuyerAddress'] = this.confirmAddress
           console.log(order[i])
           data = await saveOrder(order[i])
           await deleteCart(order[i])

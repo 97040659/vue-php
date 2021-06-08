@@ -15,7 +15,6 @@
             <el-tabs v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="全部订单" name="all"></el-tab-pane>
               <el-tab-pane label="待支付" name="UnPay"></el-tab-pane>
-              <el-tab-pane label="已付款" name="Paid"></el-tab-pane>
               <el-tab-pane label="待发货" name="UnSent"></el-tab-pane>
               <el-tab-pane label="待收货" name="UnReceive"></el-tab-pane>
               <el-tab-pane label="已完成" name="Complete"></el-tab-pane>
@@ -67,6 +66,11 @@
                         <el-button class="button-pay">立即付款</el-button>
                       </router-link>
                     </div>
+                    <div v-else-if="item.Status==='Complete'&&item.Status!=='Appraised'">
+                      <router-link :to="{ path: '/appraise', query: {Id:item.Id} }">
+                        <el-button class="button-pay">评价</el-button>
+                      </router-link>
+                    </div>
                     <div>
                       <router-link
                           :to="{ path: '/order/details', query: {Id:item.Id} }"
@@ -75,7 +79,7 @@
                       </router-link>
                     </div>
                     <div v-if="item.Status!=='Complete'&& item.Status!=='UnPay'">
-                      <el-button type="info" class="button-detail" @click="handleCancel(item.Id)">取消订单</el-button>
+                      <el-button type="info" class="button-detail" @click="handleCancel(item)">取消订单</el-button>
                     </div>
                   </div>
                 </div>
@@ -122,11 +126,12 @@
       statusFilter(status) {
         const statusMap = {
           'UnPay': '等待付款',
-          'Paid': '已付款',
           'UnSent': '等待发货',
           'UnReceive': '等待签收',
           'Complete': '交易成功',
-          'invalid':'无效的'
+          'Appraised':'已评价',
+          'Processing':'处理中',
+          'Invalid':'无效的'
         }
         return statusMap[status]
       },
@@ -195,7 +200,7 @@
         this.fetchData()
       },
       handleCancel(val) {
-        const data = {Id: val}
+        const data = {id: val.Id,Status:'Processing'}
         dealOrder(data)
       },
       handleClick(tab, event) {

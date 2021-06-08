@@ -50,11 +50,9 @@
     },
   }
 </script>
-<style lang="scss" scoped>
-  .pay-container {
-  .steps {
+<style  scoped>
+  .pay-container  .steps {
     justify-content: center;
     margin-bottom: 20px;
-  }
   }
 </style>

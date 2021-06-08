@@ -4,22 +4,23 @@
 
 <template>
   <div>
-    <!--  <div class="home" id="home" name="home">-->
-    <!--    &lt;!&ndash; 轮播图 &ndash;&gt;-->
-    <!--    <div class="block">-->
-    <!--      <el-carousel height="460px">-->
-    <!--        <el-carousel-item v-for="item in carousels" :key="item.id">-->
-    <!--          <router-link :to="{ path: '/goods/details', query: {productID:item.productid} }">-->
-    <!--            <img style="height:460px;" v-lazy="item.img" />-->
-    <!--          </router-link>-->
-    <!--        </el-carousel-item>-->
-    <!--      </el-carousel>-->
-    <!--    </div>-->
-    <!--  </div>-->
-    <h2>ovo</h2>
+      <div class="home" id="home" name="home">
+        <!-- 轮播图 -->
+        <div class="block">
+          <el-carousel height="460px" :interval="5000">
+            <el-carousel-item v-for="item in carousels" :key="item.GoodsId">
+              <router-link :to="{ path: '/goods/details', query: {productID:item.GoodsId} }">
+                <el-image style="height:460px;text-align: center" fit="cover" :src="item.GoodsImg" />
+              </router-link>
+            </el-carousel-item>
+          </el-carousel>
+        </div>
+      </div>
   </div>
 </template>
 <script>
+
+  import {getCarousels} from "@/api/goods";
 
   export default {
     data() {
@@ -32,8 +33,9 @@
       this.load()
     },
     methods: {
-      load() {
-
+      async load() {
+        const data=await getCarousels({userid:window.sessionStorage.getItem('userid')})
+        this.carousels=data.data
       },
     }
   }

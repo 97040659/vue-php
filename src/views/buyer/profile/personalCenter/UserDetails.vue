@@ -51,7 +51,7 @@
 <script>
   import CenterMenu from "@/components/CenterMenu";
   import {mapActions} from "vuex";
-  import {getInfo, picture} from "../../../../api/user";
+  import {getInfo, picture} from "@/api/user";
 
   export default {
     name: "UserDetails",
@@ -111,9 +111,8 @@
           if (!valid) {
             return
           }
-          var name = this.form.Name;
-          var userid=this.form.UserId
-          this.param.append('data', [userid,name]);
+          this.param.append('userid', this.form.UserId);
+          this.param.append('name', this.form.Name);
           const data=await picture(this.param)
           if(data.code=200){
             this.$baseMessage(data.msg,'success')

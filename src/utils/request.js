@@ -22,7 +22,6 @@ export function request(config) {
     Loading.showFullScreenLoading()
     setTimeout(()=>{
       Loading.tryHideFullScreenLoading()
-      Message.error("请求超时!");
       }, 30000);
     // console.log(config.headers)
     return config

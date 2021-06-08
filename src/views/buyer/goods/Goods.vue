@@ -138,9 +138,9 @@
       },
       // 监听分类id，响应相应的商品
       categoryID: function(val) {
-        if (val != '') {
+        if (val != []) {
           this.search = ''
-          this.param.id = val
+          this.param.id = Number(val)
           this.fetchData()
         }
       },
@@ -158,9 +158,9 @@
     },
     methods:{
       async fetchData() {
+        console.log(this.param)
         const data = await getGoods(this.param)
         this.list = data.data
-        console.log(this.list)
         this.total = data.total
       },
       async getCategory(){

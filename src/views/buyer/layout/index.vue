@@ -94,7 +94,7 @@
               >
                 <el-menu-item index="/buyer">首页</el-menu-item>
                 <el-menu-item index="/goods">全部商品</el-menu-item>
-                <el-menu-item index="/center">意见反馈</el-menu-item>
+                <el-menu-item index="/center">个人中心</el-menu-item>
                 <div class="so">
                   <el-input placeholder="请输入搜索内容" v-model="search">
                     <el-button slot="append" icon="el-icon-search" @click="searchClick"></el-button>

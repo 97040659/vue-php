@@ -55,7 +55,7 @@ module.exports = {
   // },
   devServer: {
     open: true, // 自动启动浏览器
-    host: '192.168.3.4', // localhost
+    host: 'localhost', // localhost
     port: 8080, // 端口号
     https: false,
     hotOnly: false, // 热更新

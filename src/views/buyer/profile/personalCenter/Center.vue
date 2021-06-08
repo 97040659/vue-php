@@ -48,7 +48,7 @@
               <div class="operate1">
                 <p class="oper-title">已付款订单：{{paidTotal}}</p>
                 <p>
-                  <router-link :to="{ path: '/order', query: {activeName:'Paid'} }" class="oper-href">查看已付款订单 ></router-link>
+                  <router-link :to="{ path: '/order', query: {activeName:'UnPay'} }" class="oper-href">查看已付款订单 ></router-link>
                 </p>
               </div>
             </div>
@@ -103,7 +103,7 @@
     methods: {
       async getCount() {
         const unPay=await getCount({status:'UnPay'})
-        const paid=await getCount({status:'Paid'})
+        const paid=await getCount({status:'UnPay'})
         const favorite=await favoriteCount({userid:window.sessionStorage.getItem('userid')})
         this.unPayTotal=unPay.data
         this.paidTotal=paid.data

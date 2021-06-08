@@ -36,9 +36,36 @@ const routes = [
         component: () => import('@/views/buyer/goods/Details.vue'),
       },
       {
-        path: '/feedback',
-        name: 'Feedback',
-        component: () => import('@/views/buyer/feedback/Feedback.vue'),
+        path: '/appraise',
+        name: 'Appraise',
+        component: () => import('@/views/buyer/appraise/Appraise.vue'),
+        meta: {
+          showMenu: false,
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/payment',
+        name: 'Payment',
+        component: () => import('@/views/buyer/pay/Pay.vue'),
+        meta: {
+          showMenu: false,
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/myAppraise',
+        name: 'MyAppraise',
+        component: () => import('@/views/buyer/appraise/MyAppraise.vue'),
+        meta: {
+          showMenu: false,
+          requireAuth: true // 需要验证登录状态
+        }
+      },
+      {
+        path: '/goodsAppraise',
+        name: 'GoodsAppraise',
+        component: () => import('@/views/buyer/appraise/GoodsAppraise.vue'),
         meta: {
           showMenu: false,
           requireAuth: true // 需要验证登录状态
@@ -130,13 +157,28 @@ const routes = [
   {
     path: '/business',
     name: 'Business',
-    redirect: '',
+    redirect: '/goodsManagement',
     component: () => import('@/views/business/index'),
     children: [
+      // {
+      //   path: '',
+      //   name: 'Home',
+      //   component: () => import('@/views/business/Home'),
+      // },
       {
-        path: '',
-        name: 'Home',
-        component: () => import('@/views/business/Home'),
+        path: '/goodsManagement',
+        name: 'GoodsManagement',
+        component: () => import('@/views/business/goods/index'),
+      },
+      {
+        path: '/orderManagement',
+        name: 'OrderManagement',
+        component: () => import('@/views/business/order/index'),
+      },
+      {
+        path: '/addressManagement',
+        name: 'AddressManagement',
+        component: () => import('@/views/business/address/index'),
       },
       {
         path: '/update',
@@ -151,7 +193,7 @@ const routes = [
       {
         path: '/address',
         name: 'Address',
-        component: () => import('@/views/business/address/index'),
+        component: () => import('@/views/business/address'),
       },
       {
         path: '/upload',
